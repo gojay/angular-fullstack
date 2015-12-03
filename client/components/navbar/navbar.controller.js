@@ -5,6 +5,12 @@ class NavbarCtrl {
     this.menu = [{
       'title': 'Home',
       'state': 'main'
+    },{
+      'title': 'Materials',
+      'state': 'material.index'
+    },{
+      'title': 'Products',
+      'state': 'product.index'
     }];
 
     this.isCollapsed = true;

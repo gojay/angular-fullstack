@@ -12,42 +12,57 @@ import _ from 'lodash';
 import Q from 'q';
 import faker from 'faker';
 
-/*
-Thing.find({}).removeAsync()
-  .then(function() {
-    Thing.create({
-      name: 'Development Tools',
-      info: 'Integration with popular tools such as Bower, Grunt, Babel, Karma, ' +
-             'Mocha, JSHint, Node Inspector, Livereload, Protractor, Jade, ' +
-             'Stylus, Sass, and Less.'
-    }, {
-      name: 'Server and Client integration',
-      info: 'Built with a powerful and fun stack: MongoDB, Express, ' +
-             'AngularJS, and Node.'
-    }, {
-      name: 'Smart Build System',
-      info: 'Build system ignores `spec` files, allowing you to keep ' +
-             'tests alongside code. Automatic injection of scripts and ' +
-             'styles into your index.html'
-    }, {
-      name: 'Modular Structure',
-      info: 'Best practice client and server structures allow for more ' +
-             'code reusability and maximum scalability'
-    }, {
-      name: 'Optimized Build',
-      info: 'Build process packs up your templates as a single JavaScript ' +
-             'payload, minifies your scripts/css/images, and rewrites asset ' +
-             'names for caching.'
-    }, {
-      name: 'Deployment Ready',
-      info: 'Easily deploy your app to Heroku or Openshift with the heroku ' +
-             'and openshift subgenerators'
-    });
-  });
-*/
+const PRICES = [10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000];
 
-function seedUsers() {
-  return User.remove().exec()
+var seed = {
+  things() {
+    return Thing.remove().exec()
+    .then(function() {
+      return Thing.create({
+        name: 'Development Tools',
+        info: 'Integration with popular tools such as Bower, Grunt, Babel, Karma, ' +
+               'Mocha, JSHint, Node Inspector, Livereload, Protractor, Jade, ' +
+               'Stylus, Sass, and Less.'
+      }, {
+        name: 'Server and Client integration',
+        info: 'Built with a powerful and fun stack: MongoDB, Express, ' +
+               'AngularJS, and Node.'
+      }, {
+        name: 'Smart Build System',
+        info: 'Build system ignores `spec` files, allowing you to keep ' +
+               'tests alongside code. Automatic injection of scripts and ' +
+               'styles into your index.html'
+      }, {
+        name: 'Modular Structure',
+        info: 'Best practice client and server structures allow for more ' +
+               'code reusability and maximum scalability'
+      }, {
+        name: 'Optimized Build',
+        info: 'Build process packs up your templates as a single JavaScript ' +
+               'payload, minifies your scripts/css/images, and rewrites asset ' +
+               'names for caching.'
+      }, {
+        name: 'Deployment Ready',
+        info: 'Easily deploy your app to Heroku or Openshift with the heroku ' +
+               'and openshift subgenerators'
+      });
+    });
+  },
+  materials() {
+    return Material.remove().exec()
+    .then(function() {
+      var materials = _.times(20, function() {
+        return {
+          name: faker.commerce.productName(),
+          price: PRICES[Math.floor(Math.random()*PRICES.length)],
+          description: faker.commerce.productMaterial()
+        };
+      });
+      return Material.create(materials);
+    });
+  },
+  users() {
+    return User.remove().exec()
     .then(function() {
       var users = [{
         provider: 'local',
@@ -76,36 +91,20 @@ function seedUsers() {
       }];
       return User.create(users);
     });
-}
-
-var PRICES = [10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000];
-
-function seedMaterials() {
-  return Material.remove().exec()
-    .then(function() {
-      var materials = _.times(20, function() {
-        return {
-          name: faker.commerce.productName(),
-          price: PRICES[Math.floor(Math.random()*PRICES.length)],
-          description: faker.commerce.productMaterial()
-        };
-      });
-      return Material.create(materials);
-    });
-}
-
-function seedAll() {
-  Q.all([
-    seedUsers(),
-    seedMaterials()
-  ]).then(function() {
-    console.log('seed successfull');
-  }).then(null, function (error) {
-    console.log('seed error', error);
-  });
-}
-
-seedAll();
+  },
+  all() {
+    return Q.all([
+      this.things(),
+      this.materials(),
+      this.users()
+    ]);
+  }
+};
+seed.all().then(function() {
+  console.log('seed successfull');
+}).then(null, function (error) {
+  console.log('seed error', error);
+});
 
 /*
 User.find({}).removeAsync()

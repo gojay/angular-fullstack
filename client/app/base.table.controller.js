@@ -1,33 +1,41 @@
 'use strict';
 
 class BaseTableCtrl {
-	constructor($state, resource, ngTableParams, Modal, logger, utils) {
-		this.$state = $state;
+	constructor($injector) {
+		this.$injector = $injector;
+		this.$state = $injector.get('$state');
+		this.Modal 	= $injector.get('Modal');
+		this.logger = $injector.get('logger');
+		this.utils 	= $injector.get('utils');
 
-		this.resource = resource;
-		this.Modal = Modal;
-		this.logger = logger;
-		this.utils = utils;
+		var ngTableParams = $injector.get('ngTableParams');
 
-		this.params = {
-	        count: 10,
-	        sorting: {
-	            created: 'desc'
-	        }
-	    };
-	    this.table = new ngTableParams(this.params, {
-	        total: 0,
-	        getData: this._getData()
-	    });
+		this.tableParams = {
+        count: 10,
+        sorting: {
+            created: 'desc'
+        }
+    };
+    this.table = new ngTableParams(this.tableParams, {
+        total: 0,
+        getData: this._getData()
+    });
 
-	    logger.debug('BaseTableCtrl initialized', this);
+    this.logger.debug('BaseTableCtrl initialized', this);
+	}
+
+	set resource(resourceName) {
+    this.logger.debug('BaseTableCtrl set resource', resourceName);
+		this._baseState = resourceName.toLowerCase();
+		this._resourceName = resourceName;
+		this._resource = this.$injector.get(resourceName);
 	}
 
 	_getData() {
 		return ($defer, params) => {
 			this.loading = true;
 	        var query = this.utils.patchListParams(params);
-	        this.resource.query(query, (materials, headers) => {
+	        this._resource.query(query, (materials, headers) => {
 	            $defer.resolve(materials);
 	            this.table.total(headers('X-Pagination-Total-Count'));
 	            this.loading = true;
@@ -38,18 +46,19 @@ class BaseTableCtrl {
 		};
 	}
 
-	goToDetail(id) {
-		this.$state.go(`${this.resource.name}.edit`, { _id: id });
+	edit(id) {
+		this.$state.go(`${this._baseState}.edit`, { id: id });
 	}
 
-	showOnModal(...params) {
-		return Modal.resource({
-	        templateUrl: `app/${this.resource.name}/show.html`,
-	        resource: this.resource.name
-	    })(...params);
+	open(...params) {
+		return this.Modal.resource({
+      templateUrl: `app/${this._baseState}/show.html`,
+      resource: this._resourceName
+    })(...params);
 	}
 
-	deleteOnModal(...params) {
+	deleteConfirm(...params) {
+		this.logger.log(`app/${this._baseState}/show.html`);
 		return this.Modal.confirm.delete((material) => {
 	        material.$remove(() => {
 	            this.logger.success('Success!', 'Delete material', material);

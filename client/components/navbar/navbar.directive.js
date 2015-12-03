@@ -3,11 +3,11 @@
 let navbarDirective = () => {
 	return {
 		restrict: 'E',
-	    scope: {},
-      	templateUrl: 'components/navbar/navbar.html',
-	    controller: NavbarCtrl,
-	    controllerAs: 'vm',
-	    bindToController: true
+    scope: {},
+  	templateUrl: 'components/navbar/navbar.html',
+    controller: NavbarCtrl,
+    controllerAs: 'vm',
+    bindToController: true
 	}
 }
 

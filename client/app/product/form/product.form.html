@@ -1,10 +1,10 @@
 <form class="form-horizontal row-border" name="productForm" ng-submit="vm.save(productForm)" accessible-form novalidate>
-  <div id="form-sku" class="form-group has-feedback" ng-class="vm.formClass(productForm.sku)">
+  <div id="form-sku" class="form-group has-feedback" ng-class="vm.getFormClass(productForm.sku)">
     <label class="col-md-3 control-label">SKU</label>
     <div class="col-md-9">
       <input type="text" name="sku" class="form-control" 
         required 
-        ng-model="vm.product.sku"
+        ng-model="vm.model.sku"
         ng-model-options="{ updateOn:'blur' }" 
         ng-pattern="/^[a-zA-Z0-9\-\|]+$/"
         record-availability-validator="/api/products/validator">
@@ -15,7 +15,7 @@
     <div class="col-md-9 col-md-push-3 text-muted" style="padding-top:15px" ng-if="productForm.sku.$pending">
       <i class="fa fa-circle-o-notch fa-spin"></i> Checking SKU availibility....
     </div>
-    <div class="col-md-9 col-md-push-3" ng-if="vm.interacted(productForm.sku)" ng-messages="productForm.sku.$error">
+    <div class="col-md-9 col-md-push-3" ng-if="vm.isInteracted(productForm.sku)" ng-messages="productForm.sku.$error">
       <p class="help-block" ng-message="required">Product SKU is required</p>
       <p class="help-block" ng-message="pattern">Product SKU invalid character. only alpha numeric and special chararcters (-|) allowed</p>
       <p class="help-block" ng-message="recordAvailabilityValidator">Product SKU {{productForm.sku.$viewValue}} is already taken!</p>
@@ -23,29 +23,29 @@
   </div>
   <!-- sku -->
 
-  <div id="form-name" class="form-group has-feedback" ng-class="vm.formClass(productForm.name)">
+  <div id="form-name" class="form-group has-feedback" ng-class="vm.getFormClass(productForm.name)">
     <label class="col-md-3 control-label">Name</label>
     <div class="col-md-9">
-      <input type="text" name="name" class="form-control" autocomplete="off" ng-model="vm.product.name" required>
+      <input type="text" name="name" class="form-control" autocomplete="off" ng-model="vm.model.name" required>
       <span class="glyphicon form-control-feedback" aria-hidden="true" 
         ng-class="{false:'glyphicon-remove', true:'glyphicon-ok'}[productForm.name.$valid]"
         ng-show="productForm.name.$dirty"></span>
     </div>
-    <div class="col-md-9 col-md-push-3" ng-if="vm.interacted(productForm.name)" ng-messages="productForm.name.$error">
+    <div class="col-md-9 col-md-push-3" ng-if="vm.isInteracted(productForm.name)" ng-messages="productForm.name.$error">
       <p class="help-block" ng-message="required">Product name is required</p>
     </div>
   </div>
   <!-- name -->
 
-  <div id="form-stock" class="form-group" ng-class="vm.formClass(productForm.stock)">
+  <div id="form-stock" class="form-group" ng-class="vm.getFormClass(productForm.stock)">
     <label class="col-md-3 control-label">Stock</label>
     <div class="col-md-9">
       <input type="number" name="stock" class="form-control" autocomplete="off" 
-        ng-model="vm.product.stock"
+        ng-model="vm.model.stock"
         ng-pattern="/^\d+$/" 
         required>
     </div>
-    <div class="col-md-9 col-md-push-3" ng-if="vm.interacted(productForm.stock)" ng-messages="productForm.stock.$error">
+    <div class="col-md-9 col-md-push-3" ng-if="vm.isInteracted(productForm.stock)" ng-messages="productForm.stock.$error">
       <p class="help-block" ng-message="required">Product stock is required</p>
       <p class="help-block" ng-message="number">Product stock invalid number</p>
       <p class="help-block" ng-message="pattern">Product stock must be number, without decimal</p>
@@ -53,18 +53,18 @@
   </div>
   <!-- stock -->
   <!--
-  <div id="form-weight" class="form-group has-feedback" ng-class="vm.formClass(productForm.weight)">
+  <div id="form-weight" class="form-group has-feedback" ng-class="vm.getFormClass(productForm.weight)">
     <label class="col-md-3 control-label">Weight (Kg)</label>
     <div class="col-md-9">
       <input type="number" name="weight" class="form-control" autocomplete="off" 
         required
-        ng-model="vm.product.weight" 
+        ng-model="vm.model.weight" 
         ng-pattern="/^(0|[1-9][0-9]*)+(\.[0-9]{2})?$/">
       <span class="glyphicon form-control-feedback" aria-hidden="true" style="right:30px"
         ng-class="{false:'glyphicon-remove', true:'glyphicon-ok'}[productForm.weight.$valid]"
         ng-show="productForm.weight.$dirty"></span>
     </div>
-    <div class="col-md-9 col-md-push-3" ng-if="vm.interacted(productForm.weight)" ng-messages="productForm.weight.$error">
+    <div class="col-md-9 col-md-push-3" ng-if="vm.isInteracted(productForm.weight)" ng-messages="productForm.weight.$error">
       <p class="help-block" ng-message="required">Product weight is required</p>
       <p class="help-block" ng-message="number">Product weight invalid number</p>
       <p class="help-block" ng-message="pattern">Product weight must be number, with or without 2 decimals (.)</p>
@@ -72,20 +72,20 @@
   </div>
    weight -->
 
-  <div class="form-group" ng-class="vm.formClass(productForm.materials)">
+  <div class="form-group" ng-class="vm.getFormClass(productForm.materials)">
     <label class="col-md-3 control-label">Materials</label>
     <div class="col-md-9">
-      <input type="hidden" name="materials" ng-model="vm.product.materials" />
+      <input type="hidden" name="materials" ng-model="vm.model.materials" />
       <table class="table table-striped table-responsive">
         <thead>
           <tr>
-            <th>Material</th>
+            <th>Name</th>
             <th>Qty</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
-          <tr ng-repeat="item in vm.product.materials">
+          <tr ng-repeat="item in vm.model.materials">
             <td>
               <input type="text" ng-model="item._material.name" class="form-control" readonly>
             </td>
@@ -133,18 +133,18 @@
         </tbody>
       </table>
     </div>
-    <div class="col-md-9 col-md-push-3" ng-if="vm.interacted(productForm.materials)" ng-messages="productForm.materials.$error">
-      <div ng-messages-include="templates/_ng-messages.html"></div>
+    <div class="col-md-9 col-md-push-3" ng-if="vm.isInteracted(productForm.materials)" ng-messages="productForm.materials.$error">
+      <div ng-messages-include="components/_ng-messages.html"></div>
       <p class="help-block" ng-message="required">Material cannot be empty</p>
     </div>
   </div>
   <!-- materials -->
 
-  <div class="form-group" ng-class="vm.formClass(productForm.description)">
+  <div class="form-group" ng-class="vm.getFormClass(productForm.description)">
     <label class="col-md-3 control-label">Description</label>
     <div class="col-md-9">
         <textarea name="description" class="form-control" 
-          ng-model="vm.product.description"></textarea>
+          ng-model="vm.model.description"></textarea>
     </div>
   </div>
   <!-- desc -->

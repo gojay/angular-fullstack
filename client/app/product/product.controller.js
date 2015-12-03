@@ -1,20 +1,20 @@
 'use strict';
 
 class ProductCtrl extends BaseTableCtrl {
-    constructor(...parentDependecies) {
-        // $state, resource, ngTableParams, Modal, logger, utils
-        super(...parentDependecies);
+    constructor($scope, $injector) {
+        super($injector);
+        this.resource = 'Product';
     }
 
-    showProduct(...params) {
-        return Modal.resource({
-            templateUrl: 'app/product/show.html',
-            resource: 'Product'
+    openMaterial(...params) {
+        return this.Modal.resource({
+            templateUrl: 'app/material/show.html',
+            resource: 'Material'
         })(...params);
     }
 }
 
-ProductCtrl.$inject = ['$state', 'Product', 'ngTableParams', 'Modal', 'logger', 'utils'];
+ProductCtrl.$inject = ['$scope', '$injector'];
 
 angular.module('fullstackApp')
   .controller('ProductCtrl', ProductCtrl);

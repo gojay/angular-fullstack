@@ -18,12 +18,9 @@ angular.module('fullstackApp')
           templateUrl: 'app/product/form/product.form.html',
           controller: 'ProductFormCtrl as vm',
           resolve: {
-            product: [
-              'Product',
-              function ( Product ) {
-                return new Product;
-              }
-            ]
+            product: [ 'Product', Product => {
+              return new Product({ materials: [] });
+            }]
           }
         })
         .state('product.edit', {
@@ -31,13 +28,9 @@ angular.module('fullstackApp')
           templateUrl: 'app/product/form/product.form.html',
           controller: 'ProductFormCtrl as vm',
           resolve: {
-            product: [
-                'Product',
-                '$stateParams',
-                function ( Product, $stateParams ) {
-                  return Product.get({ id: $stateParams.id }).$promise;
-                }
-            ]
+            product: [ 'Product', '$stateParams', ( Product, $stateParams ) => {
+              return Product.get({ id: $stateParams.id }).$promise;
+            }]
           }
         });
   });

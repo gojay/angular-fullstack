@@ -16,31 +16,24 @@ angular.module('fullstackApp')
 	      })
 	      .state('material.new', {
 	        url: '/new',
-	        templateUrl: 'app/material/material.form.html',
+	        templateUrl: 'app/material/form/material.form.html',
 	        controller: 'MaterialFormCtrl',
 	        controllerAs: 'vm',
 	        resolve: {
-        		material: [
-        			'Material',
-        			function ( Material ) {
-        				return new Material;
-        			}
-        		]
+        		material: [ 'Material', Material => {
+      				return new Material;
+      			}]
         	}
 	      })
 	      .state('material.edit', {
 	        url: '/:id/edit',
-	        templateUrl: 'app/material/material.form.html',
+	        templateUrl: 'app/material/form/material.form.html',
 	        controller: 'MaterialFormCtrl',
 	        controllerAs: 'vm',
 	        resolve: {
-            material: [
-              	'Material',
-              	'$stateParams',
-              	function ( Material, $stateParams ) {
-                	return Material.get({ id: $stateParams.id }).$promise;
-              	}
-            ]
+            material: [ 'Material', '$stateParams', ( Material, $stateParams ) => {
+            	return Material.get({ id: $stateParams.id }).$promise;
+          	}]
         	}
 	      });
   });

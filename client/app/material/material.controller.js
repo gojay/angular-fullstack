@@ -1,15 +1,15 @@
 'use strict';
 
 class MaterialCtrl extends BaseTableCtrl {
-	constructor(...parentDependecies) {
-		// $state, resource, ngTableParams, Modal, logger, utils
-		super(...parentDependecies);
+	constructor($scope, $injector) {
+		super($injector);
+		this.resource = 'Material';
 		// override count table params 
-		this.params.count = 5;
+		this.tableParams.count = 5;
 	}
 }
 
-MaterialCtrl.$inject = ['$state', 'Material', 'ngTableParams', 'Modal', 'logger', 'utils'];
+MaterialCtrl.$inject = ['$scope', '$injector'];
 
 angular.module('fullstackApp')
   .controller('MaterialCtrl', MaterialCtrl);
