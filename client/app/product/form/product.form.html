@@ -1,165 +1,171 @@
-<form class="form-horizontal row-border" name="productForm" ng-submit="vm.save(productForm)" accessible-form novalidate>
-  <div id="form-sku" class="form-group has-feedback" ng-class="vm.getFormClass(productForm.sku)">
-    <label class="col-md-3 control-label">SKU</label>
-    <div class="col-md-9">
-      <input type="text" name="sku" class="form-control" 
-        required 
-        ng-model="vm.model.sku"
-        ng-model-options="{ updateOn:'blur' }" 
-        ng-pattern="/^[a-zA-Z0-9\-\|]+$/"
-        record-availability-validator="/api/products/validator">
-      <span class="glyphicon form-control-feedback" aria-hidden="true" 
-        ng-class="{false:'glyphicon-remove', true:'glyphicon-ok'}[productForm.sku.$valid]"
-        ng-show="productForm.sku.$dirty"></span>
-    </div>
-    <div class="col-md-9 col-md-push-3 text-muted" style="padding-top:15px" ng-if="productForm.sku.$pending">
-      <i class="fa fa-circle-o-notch fa-spin"></i> Checking SKU availibility....
-    </div>
-    <div class="col-md-9 col-md-push-3" ng-if="vm.isInteracted(productForm.sku)" ng-messages="productForm.sku.$error">
-      <p class="help-block" ng-message="required">Product SKU is required</p>
-      <p class="help-block" ng-message="pattern">Product SKU invalid character. only alpha numeric and special chararcters (-|) allowed</p>
-      <p class="help-block" ng-message="recordAvailabilityValidator">Product SKU {{productForm.sku.$viewValue}} is already taken!</p>
-    </div>
-  </div>
-  <!-- sku -->
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <form class="form-horizontal row-border" name="productForm" ng-submit="vm.save(productForm)" accessible-form novalidate>
+        <div id="form-sku" class="form-group has-feedback" ng-class="vm.getFormClass(productForm.sku)">
+          <label class="col-md-3 control-label">SKU</label>
+          <div class="col-md-9">
+            <input type="text" name="sku" class="form-control" 
+              required 
+              ng-model="vm.model.sku"
+              ng-model-options="{ updateOn:'blur' }" 
+              ng-pattern="/^[a-zA-Z0-9\-\|]+$/"
+              record-availability-validator="/api/products/validator">
+            <span class="glyphicon form-control-feedback" aria-hidden="true" 
+              ng-class="{false:'glyphicon-remove', true:'glyphicon-ok'}[productForm.sku.$valid]"
+              ng-show="productForm.sku.$dirty"></span>
+          </div>
+          <div class="col-md-9 col-md-push-3 text-muted" style="padding-top:15px" ng-if="productForm.sku.$pending">
+            <i class="fa fa-circle-o-notch fa-spin"></i> Checking SKU availibility....
+          </div>
+          <div class="col-md-9 col-md-push-3" ng-if="vm.isInteracted(productForm.sku)" ng-messages="productForm.sku.$error">
+            <p class="help-block" ng-message="required">Product SKU is required</p>
+            <p class="help-block" ng-message="pattern">Product SKU invalid character. only alpha numeric and special chararcters (-|) allowed</p>
+            <p class="help-block" ng-message="recordAvailabilityValidator">Product SKU {{productForm.sku.$viewValue}} is already taken!</p>
+          </div>
+        </div>
+        <!-- sku -->
 
-  <div id="form-name" class="form-group has-feedback" ng-class="vm.getFormClass(productForm.name)">
-    <label class="col-md-3 control-label">Name</label>
-    <div class="col-md-9">
-      <input type="text" name="name" class="form-control" autocomplete="off" ng-model="vm.model.name" required>
-      <span class="glyphicon form-control-feedback" aria-hidden="true" 
-        ng-class="{false:'glyphicon-remove', true:'glyphicon-ok'}[productForm.name.$valid]"
-        ng-show="productForm.name.$dirty"></span>
-    </div>
-    <div class="col-md-9 col-md-push-3" ng-if="vm.isInteracted(productForm.name)" ng-messages="productForm.name.$error">
-      <p class="help-block" ng-message="required">Product name is required</p>
-    </div>
-  </div>
-  <!-- name -->
+        <div id="form-name" class="form-group has-feedback" ng-class="vm.getFormClass(productForm.name)">
+          <label class="col-md-3 control-label">Name</label>
+          <div class="col-md-9">
+            <input type="text" name="name" class="form-control" autocomplete="off" ng-model="vm.model.name" required>
+            <span class="glyphicon form-control-feedback" aria-hidden="true" 
+              ng-class="{false:'glyphicon-remove', true:'glyphicon-ok'}[productForm.name.$valid]"
+              ng-show="productForm.name.$dirty"></span>
+          </div>
+          <div class="col-md-9 col-md-push-3" ng-if="vm.isInteracted(productForm.name)" ng-messages="productForm.name.$error">
+            <p class="help-block" ng-message="required">Product name is required</p>
+          </div>
+        </div>
+        <!-- name -->
 
-  <div id="form-stock" class="form-group" ng-class="vm.getFormClass(productForm.stock)">
-    <label class="col-md-3 control-label">Stock</label>
-    <div class="col-md-9">
-      <input type="number" name="stock" class="form-control" autocomplete="off" 
-        ng-model="vm.model.stock"
-        ng-pattern="/^\d+$/" 
-        required>
-    </div>
-    <div class="col-md-9 col-md-push-3" ng-if="vm.isInteracted(productForm.stock)" ng-messages="productForm.stock.$error">
-      <p class="help-block" ng-message="required">Product stock is required</p>
-      <p class="help-block" ng-message="number">Product stock invalid number</p>
-      <p class="help-block" ng-message="pattern">Product stock must be number, without decimal</p>
-    </div>
-  </div>
-  <!-- stock -->
-  <!--
-  <div id="form-weight" class="form-group has-feedback" ng-class="vm.getFormClass(productForm.weight)">
-    <label class="col-md-3 control-label">Weight (Kg)</label>
-    <div class="col-md-9">
-      <input type="number" name="weight" class="form-control" autocomplete="off" 
-        required
-        ng-model="vm.model.weight" 
-        ng-pattern="/^(0|[1-9][0-9]*)+(\.[0-9]{2})?$/">
-      <span class="glyphicon form-control-feedback" aria-hidden="true" style="right:30px"
-        ng-class="{false:'glyphicon-remove', true:'glyphicon-ok'}[productForm.weight.$valid]"
-        ng-show="productForm.weight.$dirty"></span>
-    </div>
-    <div class="col-md-9 col-md-push-3" ng-if="vm.isInteracted(productForm.weight)" ng-messages="productForm.weight.$error">
-      <p class="help-block" ng-message="required">Product weight is required</p>
-      <p class="help-block" ng-message="number">Product weight invalid number</p>
-      <p class="help-block" ng-message="pattern">Product weight must be number, with or without 2 decimals (.)</p>
-    </div>
-  </div>
-   weight -->
+        <div id="form-stock" class="form-group" ng-class="vm.getFormClass(productForm.stock)">
+          <label class="col-md-3 control-label">Stock</label>
+          <div class="col-md-9">
+            <input type="number" name="stock" class="form-control" autocomplete="off" 
+              ng-model="vm.model.stock"
+              min="1"
+              ng-pattern="/^\d+$/" 
+              required>
+          </div>
+          <div class="col-md-9 col-md-push-3" ng-if="vm.isInteracted(productForm.stock)" ng-messages="productForm.stock.$error">
+            <p class="help-block" ng-message="required">Product stock is required</p>
+            <p class="help-block" ng-message="number">Product stock invalid number</p>
+            <p class="help-block" ng-message="pattern">Product stock must be number, without decimal</p>
+          </div>
+        </div>
+        <!-- stock -->
+        <!--
+        <div id="form-weight" class="form-group has-feedback" ng-class="vm.getFormClass(productForm.weight)">
+          <label class="col-md-3 control-label">Weight (Kg)</label>
+          <div class="col-md-9">
+            <input type="number" name="weight" class="form-control" autocomplete="off" 
+              required
+              ng-model="vm.model.weight" 
+              ng-pattern="/^(0|[1-9][0-9]*)+(\.[0-9]{2})?$/">
+            <span class="glyphicon form-control-feedback" aria-hidden="true" style="right:30px"
+              ng-class="{false:'glyphicon-remove', true:'glyphicon-ok'}[productForm.weight.$valid]"
+              ng-show="productForm.weight.$dirty"></span>
+          </div>
+          <div class="col-md-9 col-md-push-3" ng-if="vm.isInteracted(productForm.weight)" ng-messages="productForm.weight.$error">
+            <p class="help-block" ng-message="required">Product weight is required</p>
+            <p class="help-block" ng-message="number">Product weight invalid number</p>
+            <p class="help-block" ng-message="pattern">Product weight must be number, with or without 2 decimals (.)</p>
+          </div>
+        </div>
+         weight -->
 
-  <div class="form-group" ng-class="vm.getFormClass(productForm.materials)">
-    <label class="col-md-3 control-label">Materials</label>
-    <div class="col-md-9">
-      <input type="hidden" name="materials" ng-model="vm.model.materials" />
-      <table class="table table-striped table-responsive">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Qty</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr ng-repeat="item in vm.model.materials">
-            <td>
-              <input type="text" ng-model="item._material.name" class="form-control" readonly>
-            </td>
-            <td>
-              <input type="number" ng-model="item.qty" class="form-control" readonly>
-            </td>
-            <td>
-              <button class="btn btn-default btn-danger" type="button" ng-click="vm.removeField($index)">
-                <i class="fa fa-minus"></i>
-              </button>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <ui-select class="form-control"
-                  ng-model="vm.selectedField._material" 
-                  theme="select2"
-                  reset-search-input="true">
-                <ui-select-match placeholder="Select or search a material...">{{$select.selected.name}}</ui-select-match>
-                <ui-select-choices repeat="material in vm.materials | filter: $select.search"
-                  refresh="vm.selectMaterial($select.search)" refresh-delay="0">
-                  <div class="media">
-                    <div class="media-body">
-                      <div ng-bind-html="material.name | highlight: $select.search"></div>
-                      <small>
-                        <span>{{material.description}}</span><br/>
-                        <span>{{material.price | currency: 'Rp '}}</span>
-                      </small>
-                    </div>
-                  </div>
-                </ui-select-choices>
-              </ui-select>
-              <span ng-show="vm.isAddingField && vm.fieldKeyError" class="text-danger">Material is required</span>
-            </td>
-            <td>
-              <input type="number" name="selectedFieldValue" min="1" class="form-control" 
-                ng-model="vm.selectedField.qty" ng-disabled="!vm.selectedField._material">
-              <span ng-show="vm.isAddingField && vm.fieldValueError" class="text-danger">Qty is required</span>
-            </td>
-            <td>
-              <button class="btn btn-default" type="button" ng-click="vm.addField()">
-                <i class="fa fa-plus"></i>
-              </button>
-            </td>
-        </tbody>
-      </table>
-    </div>
-    <div class="col-md-9 col-md-push-3" ng-if="vm.isInteracted(productForm.materials)" ng-messages="productForm.materials.$error">
-      <div ng-messages-include="components/_ng-messages.html"></div>
-      <p class="help-block" ng-message="required">Material cannot be empty</p>
-    </div>
-  </div>
-  <!-- materials -->
+        <div class="form-group" ng-class="vm.getFormClass(productForm.materials)">
+          <label class="col-md-3 control-label">Materials</label>
+          <div class="col-md-9">
+            <input type="hidden" name="materials" ng-model="vm.model.materials" />
+            <table class="table table-striped table-responsive">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Qty</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr ng-repeat="item in vm.model.materials">
+                  <td>
+                    <input type="text" ng-model="item._material.name" class="form-control" readonly>
+                  </td>
+                  <td>
+                    <input type="number" ng-model="item.qty" class="form-control" readonly>
+                  </td>
+                  <td>
+                    <button class="btn btn-default btn-danger" type="button" ng-click="vm.removeField($index)">
+                      <i class="fa fa-minus"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <ui-select class="form-control"
+                        ng-model="vm.selectedField._material" 
+                        theme="select2"
+                        reset-search-input="true">
+                      <ui-select-match placeholder="Select or search a material...">{{$select.selected.name}}</ui-select-match>
+                      <ui-select-choices repeat="material in vm.materials | filter: $select.search"
+                        refresh="vm.selectMaterial($select.search)" refresh-delay="0">
+                        <div class="media">
+                          <div class="media-body">
+                            <div ng-bind-html="material.name | highlight: $select.search"></div>
+                            <small>
+                              <span>{{material.description}}</span><br/>
+                              <span>{{material.price | currency: 'Rp '}}</span>
+                            </small>
+                          </div>
+                        </div>
+                      </ui-select-choices>
+                    </ui-select>
+                    <span ng-show="vm.isAddingField && vm.fieldKeyError" class="text-danger">Material is required</span>
+                  </td>
+                  <td>
+                    <input type="number" name="selectedFieldValue" min="1" class="form-control" 
+                      ng-model="vm.selectedField.qty" ng-disabled="!vm.selectedField._material">
+                    <span ng-show="vm.isAddingField && vm.fieldValueError" class="text-danger">Qty is required</span>
+                  </td>
+                  <td>
+                    <button class="btn btn-default" type="button" ng-click="vm.addField()">
+                      <i class="fa fa-plus"></i>
+                    </button>
+                  </td>
+              </tbody>
+            </table>
+          </div>
+          <div class="col-md-9 col-md-push-3" ng-if="vm.isInteracted(productForm.materials)" ng-messages="productForm.materials.$error">
+            <div ng-messages-include="components/_ng-messages.html"></div>
+          </div>
+        </div>
+        <!-- materials -->
 
-  <div class="form-group" ng-class="vm.getFormClass(productForm.description)">
-    <label class="col-md-3 control-label">Description</label>
-    <div class="col-md-9">
-        <textarea name="description" class="form-control" 
-          ng-model="vm.model.description"></textarea>
+        <div class="form-group" ng-class="vm.getFormClass(productForm.description)">
+          <label class="col-md-3 control-label">Description</label>
+          <div class="col-md-9">
+              <textarea name="description" class="form-control" 
+                ng-model="vm.model.description"></textarea>
+          </div>
+        </div>
+        <!-- desc -->
+        
+        <div class="form-group">
+          <div class="col-md-offset-3 col-md-9">
+            <button type="submit" class="btn btn-primary btn-lg" style="z-index:0" ng-disabled="vm.loading">
+                <span ng-if="vm.loading">
+                  <i class="fa fa-circle-o-notch fa-spin"></i> Saving..
+                </span>
+                <span ng-if="!vm.loading">Save</span>
+            </button>
+            <!-- <button type="reset" ng-click="reset()" class="btn btn-danger btn-lg" style="z-index:0" ng-disabled="loading">
+              Reset
+            </button> -->
+          </div>
+        </div>
+      </form>
     </div>
   </div>
-  <!-- desc -->
-  
-  <div class="form-group">
-    <div class="col-md-offset-3 col-md-9">
-      <button type="submit" class="btn btn-primary btn-lg" style="z-index:0" ng-disabled="vm.loading">
-          <span ng-if="vm.loading">
-            <i class="fa fa-circle-o-notch fa-spin"></i> Saving..
-          </span>
-          <span ng-if="!vm.loading">Save</span>
-      </button>
-      <!-- <button type="reset" ng-click="reset()" class="btn btn-danger btn-lg" style="z-index:0" ng-disabled="loading">
-        Reset
-      </button> -->
-    </div>
-  </div>
-</form>
+</div>

@@ -11,6 +11,9 @@ class NavbarCtrl {
     },{
       'title': 'Products',
       'state': 'product.index'
+    },{
+      'title': 'Orders',
+      'state': 'order.index'
     }];
 
     this.isCollapsed = true;

@@ -1,0 +1,7 @@
+form[name="orderForm"] .input-group-addon > small {
+	vertical-align: top;
+}
+
+form[name="orderForm"] fieldset > legend {
+	border-bottom:none;
+}

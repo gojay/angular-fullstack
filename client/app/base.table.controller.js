@@ -25,7 +25,7 @@ class BaseTableCtrl {
 	}
 
 	set resource(resourceName) {
-    this.logger.debug('BaseTableCtrl set resource', resourceName);
+    	this.logger.debug('BaseTableCtrl set resource', resourceName);
 		this._baseState = resourceName.toLowerCase();
 		this._resourceName = resourceName;
 		this._resource = this.$injector.get(resourceName);
@@ -52,9 +52,9 @@ class BaseTableCtrl {
 
 	open(...params) {
 		return this.Modal.resource({
-      templateUrl: `app/${this._baseState}/show.html`,
-      resource: this._resourceName
-    })(...params);
+	      	templateUrl: `app/${this._baseState}/show.html`,
+	      	resource: this._resourceName
+	    })(...params);
 	}
 
 	deleteConfirm(...params) {

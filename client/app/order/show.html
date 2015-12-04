@@ -1,0 +1,122 @@
+<div class="text-center" ng-if="!model">Loading...</div>
+<!-- Main content -->
+<section class="content invoice" ng-if="model">
+    <!-- title row -->
+    <div class="row" style="padding-top:15px; padding-bottom:15px;">
+        <div class="col-xs-12">
+            <h2 class="page-header">
+                <i class="fa fa-globe"></i> Material
+                <small class="pull-right" style="font-size:14px">
+                  Date: {{model.created | amDateFormat:'dddd, MMMM Do YYYY, h:mm:ss a'}}
+                </small>
+            </h2>
+        </div>
+        <!-- /.col -->
+    </div>
+    <hr>
+    <!-- info row -->
+    <div class="row invoice-info" style="padding-top:15px; padding-bottom:15px;">
+        <div class="col-sm-6 invoice-col">
+            Customer
+            <address>
+                <strong>{{model._customer.name}}</strong>
+                <br> {{model._customer.address}}
+                <br> {{model._customer.city}}
+                <br> {{model._customer.postal_code}}
+                <br> Phone: {{model._customer.phone}}
+                <br/> Email: {{model._customer._user.email}}
+            </address>
+        </div>
+        <!-- /.col
+        <div class="col-sm-4 invoice-col">
+            To
+            <address>
+                <strong>{{model.User.sName || model.User.name}}</strong>
+                <br> {{model.User.sAddr1 || model.User.addr1}}
+                <br> {{model.User.sAdm1 || model.User.adm1}}
+                <br> {{model.User.sAdm2 || model.User.adm2}}, {{model.User.sPostalCode || model.User.postalCode}}
+                <br> Phone: {{model.User.sPhone || model.User.phone}}
+                <br/> Email: {{model.User.sEmail || model.User.email}}
+            </address>
+        </div>
+        /.col -->
+        <div class="col-sm-6 invoice-col">
+            <b>Order ID: #{{model.code}}</b>
+            <br/>
+            <!-- <b>Payment Date: 
+              <span class="label label-danger" ng-if="model.status == 'pending'">Pending</span>
+              <span ng-if="model.status != 'pending'">{{model.createdAt | amDateFormat:'DD/MM/YYYY, h:mm:ss a'}}</span>
+            </b>
+            <br/>
+            <b>Order Status:</b>
+            <span class="label" ng-class="getProgress('label')" ng-bind="getProgress('text')"></span> -->
+        </div>
+        <!-- /.col -->
+    </div>
+    <!-- /.row -->
+
+    <!-- Table row -->
+    <div class="row" style="padding-top:15px; padding-bottom:15px;">
+        <div class="col-xs-12 table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>Product</th>
+                        <th>SKU #</th>
+                        <th>Qty</th>
+                        <th>Price</th>
+                        <!-- <th>Weight</th> -->
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="item in model._items">
+                        <td>{{$index + 1}}</td>
+                        <!-- <td><a ng-click="showProductModal(item.name, {id:item.productId})">{{item.name}}</a></td> -->
+                        <td>{{item._product.name}}</td>
+                        <td>{{item._product.sku}}</td>
+                        <td>{{item.qty}}</td>
+                        <td>{{item.price | currency:'Rp '}}</td>
+                        <!-- <td>{{item._product.weight.toFixed(2)}}</td> -->
+                        <td>{{item.total | currency:'Rp '}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- /.col -->
+    </div>
+    <!-- /.row -->
+
+    <div class="row">
+        <!-- accepted payments column -->
+        <div class="col-xs-6">
+            <!-- <p class="lead">Payment Methods {{model.paymentMethod}}</p> -->
+            <p>Note:</p>
+            <p class="text-muted well well-sm no-shadow" ng-show="model.description" style="margin-top: 10px;">{{model.description}}</p>
+        </div>
+        <!-- /.col -->
+        <div class="col-xs-6">
+            <p class="lead">Amount :</p>
+            <div class="table-responsive">
+                <table class="table">
+                    <!-- <tr>
+                        <th style="width:50%">Subtotal:</th>
+                        <td>{{model.total|currency:'Rp '}}</td>
+                    </tr>
+                    <tr>
+                        <th>Shipping:</th>
+                        <td>{{model.insuranceCost|currency}}</td>
+                    </tr> -->
+                    <tr>
+                        <th>Total:</th>
+                        <td>{{model.total|currency:'Rp '}}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <!-- /.col -->
+    </div>
+    <!-- /.row -->
+</section>
+<!-- /.content -->

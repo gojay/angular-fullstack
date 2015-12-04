@@ -19,7 +19,7 @@ angular.module('fullstackApp')
           controller: 'ProductFormCtrl as vm',
           resolve: {
             product: [ 'Product', Product => {
-              return new Product({ materials: [] });
+              return new Product({ materials: [], stock: 1 });
             }]
           }
         })
