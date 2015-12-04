@@ -91,20 +91,23 @@ exports.create = function(req, res) {
   //   })
   
   var customerPromise;
-  if(body.customer._id) {
-    customerPromise = Customer.findById(body.customer._id).exec();
+  if(body._customer._id) {
+    customerPromise = Customer.findById(body._customer._id).exec();
   } else {
-    customerPromise = Customer.create(body.customer);
+    customerPromise = Customer.create(body._customer);
   }
 
   customerPromise
     .then(function (customer) {
       var q = Q.defer();
+      
       var data = { _items: [], total: 0, _customer: customer._id };
-      var promises = _.reduce(body.items, function (promise, orderitem) {
+      
+      var promises = _.reduce(body._items, function (promise, orderitem) {
         return promise
         .then(function() {
-          return Product.findById(orderitem._id).select('materials').populate('materials._material').exec();
+          // return Product.findById(orderitem._id).select('materials').populate('materials._material').exec();
+          return Q.when(orderitem._product);
         })
         .then(function (product) {
           var price = _.sum(product.materials, function (m) {
@@ -137,8 +140,8 @@ exports.create = function(req, res) {
       q.resolve();
       return promises;
     })
-    .then(function (order) {
-      return Order.create(order);
+    .then(function (orderData) {
+      return Order.create(orderData);
     })
     .then(function() {
       res.send(200);

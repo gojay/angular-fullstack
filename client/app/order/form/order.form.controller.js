@@ -20,7 +20,9 @@ class OrderFormCtrl extends BaseFormCtrl {
 
     var unwatchSelected = this.$scope.$watch(() => this.selectedField._product, (newValue) => {
       if (!newValue) return;
-      this.selectedField.max = newValue.stock;
+      var stock = this._getSelectedItem(newValue._id);
+      this.selectedField.max = newValue.stock - (stock ? stock.qty : 0);
+      this.selectedField.qty = 1;
     }, true);
 
     this.$scope.$on('$destroy', unwatchSelected);
@@ -40,20 +42,23 @@ class OrderFormCtrl extends BaseFormCtrl {
     });
   }
 
+  _getSelectedItem(productId) {
+    return _.find(this.model._items, (m) => {
+      return m._product._id == productId;
+    });
+  }
+
   _resetField() {
     this.selectedField = {
       _product: null,
-      qty: 1,
+      qty: null,
       max: 1
     };
     this.isAddingField = this.fieldKeyError = this.fieldValueError = false;
-    this.logger.log('_resetField', this.selectedField);
   }
 
   addField(form) {
     this.isAddingField = true;
-
-    this.logger.log('addField', this.selectedField, form);
 
     if (!this.selectedField._product) {
         this.fieldKeyError = true;
@@ -63,21 +68,19 @@ class OrderFormCtrl extends BaseFormCtrl {
         this.fieldValueError = true;
         return;
     }
+    if (this.selectedField._product.stock < this.selectedField.qty) {
+        this.logger.warning(`The maximum quantity is ${this.selectedField._product.stock}`, `Product ${this.selectedField._product.name}`);
+        this.selectedField.qty = this.selectedField._product.stock;
+        return;
+    }
 
-    var selected = _.find(this.model._items, (m) => {
-      return m._product._id == this.selectedField._product._id;
-    });
+    var selected = this._getSelectedItem(this.selectedField._product._id);
     if (selected) {
       var sStock = selected.qty + this.selectedField.qty;
-      this.logger.log(`qty: ${this.selectedField.qty}
-        selected qty: ${selected.qty}
-        in stock ${this.selectedField._product.stock}
-        sStock ${sStock}
-      `);
-      if (this.selectedField._product.stock >= sStock) {
+      if (selected._product.stock >= sStock) {
         selected.qty += this.selectedField.qty;
       } else {
-        this.logger.warning('Maximum only add ' + this.selectedField._product.stock + ' qty', 'Product ' + this.selectedField._product.name);
+        this.logger.warning(`The maximum quantity is ${this.selectedField.max} out of ${selected._product.stock}`, `Product ${this.selectedField._product.name}`);
         return;
       }
     } else {
@@ -94,8 +97,8 @@ class OrderFormCtrl extends BaseFormCtrl {
   // @override
   _beforeSave(form) {
     form.items.$setValidity('required', !_.isEmpty(this.model._items));
-    this.logger.log('override -> _beforeSave : check validity order items', form.items);
-    this.logger.log('model', this.model);
+    // this.logger.log('override -> _beforeSave : check validity order items', form.items);
+    // this.logger.log('model', this.model);
     return;
   }
 }

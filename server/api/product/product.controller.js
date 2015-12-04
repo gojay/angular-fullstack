@@ -165,7 +165,7 @@ exports.search = function(req, res) {
     }
   }];
 
-  Products.find(filter).populate('materials').sort({ name: 1 }).exec()
+  Products.find(filter).lean().populate({ path: 'materials._material', select: 'name price' }).sort({ name: 1 }).exec()
     .then(function (products) {
       products = products.map(function (product) {
         product.price = _.sum(product.materials, function (m) {

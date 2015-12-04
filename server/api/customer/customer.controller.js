@@ -165,6 +165,19 @@ exports.destroy = function(req, res) {
     })
 };
 
+exports.validator = function(req, res) {
+  var query = req.query;
+  var q = req.query.q;
+  Customer.count({ email: q }).exec()
+    .then(function(count) {
+      var status = count ? 422 : 200 ;
+      res.status(status).end();
+    })
+    .then(null, function(error) {
+      res.json(500, error);
+    });
+};
+
 exports.search = function(req, res) {
   var filter = req.body.q ? { name: new RegExp(req.body.q, 'i') } : {} ;
 

@@ -17,7 +17,7 @@
                   theme="select2"
                   reset-search-input="true">
                   <ui-select-match placeholder="Select or search a customer...">
-                    {{$select.selected.name + ' - ' + $select.selected.email}}
+                    {{$select.selected.name}}
                   </ui-select-match>
                   <ui-select-choices repeat="customer in vm.customers| filter: $select.search"
                     refresh="vm.selectCustomers($select.search)" refresh-delay="0">
@@ -26,7 +26,7 @@
                   </ui-select-choices>
                 </ui-select>
             </div>
-            <div class="col-md-9 col-md-push-3">
+            <div class="col-md-9 col-md-push-3" ng-if="!vm.model._id">
               <div class="checkbox text-muted">
                 <label>
                   <input type="checkbox" ng-model="vm.formOptions.customer.add">
@@ -55,7 +55,7 @@
                     <input type="email" name="email" class="form-control" 
                       ng-model="vm.model._customer.email"
                       ng-model-options="{ updateOn:'blur' }" 
-                      record-availability-validator="/api/users/validator"
+                      record-availability-validator="/api/customers/validator"
                       ng-required="vm.formOptions.customer.add">
                 </div>
                 <div class="col-md-9 col-md-push-3" ng-if="vm.isInteracted(orderForm.email)" ng-messages="orderForm.email.$error">
@@ -173,9 +173,9 @@
                       <span ng-show="vm.isAddingField && vm.fieldKeyError" class="text-danger">Product is required</span>
                     </td>
                     <td>
-                      <input type="number" name="selectedFieldValue" max="{{vm.selectedField.max}}" class="form-control" 
+                      <input type="number" name="selectedFieldValue" class="form-control" 
                         ng-model="vm.selectedField.qty" ng-disabled="!vm.selectedField._product">
-                      <span ng-show="vm.isAddingField && vm.fieldValueError" class="text-danger">Qty is required</span>
+                      <span ng-show="vm.isAddingField && vm.fieldValueError" class="text-danger">Qty is required / maximum {{vm.selectedField.max}} </span>
                     </td>
                     <td>
                       <button class="btn btn-default" type="button" ng-click="vm.addField(form)">

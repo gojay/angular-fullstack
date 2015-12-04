@@ -7,7 +7,7 @@ class OrderCtrl extends BaseTableCtrl {
     }
 
     openCustomer(...params) {
-        return Modal.resource({
+        return this.Modal.resource({
             templateUrl: 'app/customer/show.html',
             resource: 'Customer'
         })(...params);
