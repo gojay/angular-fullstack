@@ -9,7 +9,7 @@ var Q = require('q');
 
 var Auth = require('../../auth/auth.service');
 
-var Product = require('./products.model');
+var Product = require('./product.model');
 var User = require('../user/user.model');
 var Material = require('../material/material.model');
 
@@ -105,7 +105,7 @@ describe('Products', function() {
   describe('Created by admin', function() {
     it('should 403 when role "admin_m" create product', function (done) {
       request(app)
-        .post('/api/products')
+        .post('/api/product')
         .set('Authorization', token['admin_m'])
         .send(data)
         .expect(403)

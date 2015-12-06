@@ -15,11 +15,21 @@ $fa-font-path: "../bower_components/font-awesome/fonts";
   padding: 0.2em 0;
 }
 
+body {
+	min-height: 300px; 
+  padding-top: 70px;
+}
+
 // Component styles are injected through grunt
 // injector
-@import 'admin/admin.scss';
-@import 'main/main.scss';
-@import 'material/material.scss';
-@import '../components/footer/footer.scss';
+@import 'admin/dashboard/dashboard.scss';
+@import 'admin/material/material.scss';
+@import 'admin/user/admin.scss';
+@import 'customer/dashboard/dashboard.scss';
+@import 'customer/history/history.scss';
+@import 'customer/tracking/tracking.scss';
+@import 'guest/home/home.scss';
+@import 'guest/service/service.scss';
+@import 'layout/footer/footer.scss';
 @import '../components/oauth-buttons/oauth-buttons.scss';
 // endinjector

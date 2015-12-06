@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('fullstackApp')
+angular.module('app.components')
   .factory('Auth', function Auth($http, User, $cookies, $q) {
     /**
      * Return a callback or noop function
@@ -133,6 +133,19 @@ angular.module('fullstackApp')
         return this.getCurrentUser(null)
           .then(function(user) {
             var is = user.hasOwnProperty('role');
+            safeCb(callback)(is);
+            return is;
+          });
+      },
+
+      isCustomer: function(callback) {
+        if (arguments.length === 0) {
+          return currentUser.role === 'customer';
+        }
+
+        return this.getCurrentUser(null)
+          .then(function(user) {
+            var is = user.role === 'customer';
             safeCb(callback)(is);
             return is;
           });

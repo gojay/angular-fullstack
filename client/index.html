@@ -23,9 +23,10 @@
     <!-- build:css({.tmp,client}) app/app.css -->
       <link rel="stylesheet" href="app/app.css">
       <!-- injector:css -->
-      <link rel="stylesheet" href="app/customer/customer.css">
-      <link rel="stylesheet" href="app/order/order.css">
-      <link rel="stylesheet" href="app/product/product.css">
+      <link rel="stylesheet" href="app/admin/customer/customer.css">
+      <link rel="stylesheet" href="app/admin/order/order.css">
+      <link rel="stylesheet" href="app/admin/product/product.css">
+      <link rel="stylesheet" href="app/layout/sidebar/sidebar.css">
       <link rel="stylesheet" href="components/services/modal/modal.css">
       <!-- endinjector -->
     <!-- endbuild -->
@@ -90,49 +91,71 @@
     <!-- build:js(.tmp) app/app.js -->
       <script src="app/app.js"></script>
       <!-- injector:js -->
+      <script src="app/_base.form.controller.js"></script>
+      <script src="app/_base.table.controller.js"></script>
+      <script src="app/_register.js"></script>
       <script src="app/account/account.js"></script>
       <script src="app/account/login/login.controller.js"></script>
       <script src="app/account/settings/settings.controller.js"></script>
       <script src="app/account/signup/signup.controller.js"></script>
-      <script src="app/admin/admin.controller.js"></script>
-      <script src="app/admin/admin.js"></script>
-      <script src="app/base.form.controller.js"></script>
-      <script src="app/base.table.controller.js"></script>
-      <script src="app/customer/customer.controller.js"></script>
-      <script src="app/customer/customer.js"></script>
-      <script src="app/customer/form/customer.form.controller.js"></script>
-      <script src="app/main/main.controller.js"></script>
-      <script src="app/main/main.js"></script>
-      <script src="app/material/form/material.form.controller.js"></script>
-      <script src="app/material/material.controller.js"></script>
-      <script src="app/material/material.js"></script>
-      <script src="app/order/form/order.form.controller.js"></script>
-      <script src="app/order/order.controller.js"></script>
-      <script src="app/order/order.js"></script>
-      <script src="app/product/form/product.form.controller.js"></script>
-      <script src="app/product/product.controller.js"></script>
-      <script src="app/product/product.js"></script>
+      <script src="app/admin/_admin.module.js"></script>
+      <script src="app/admin/customer/customer.controller.js"></script>
+      <script src="app/admin/customer/customer.js"></script>
+      <script src="app/admin/customer/form/customer.form.controller.js"></script>
+      <script src="app/admin/dashboard/dashboard.controller.js"></script>
+      <script src="app/admin/dashboard/dashboard.js"></script>
+      <script src="app/admin/material/form/material.form.controller.js"></script>
+      <script src="app/admin/material/material.controller.js"></script>
+      <script src="app/admin/material/material.js"></script>
+      <script src="app/admin/order/form/order.form.controller.js"></script>
+      <script src="app/admin/order/order.controller.js"></script>
+      <script src="app/admin/order/order.js"></script>
+      <script src="app/admin/product/form/product.form.controller.js"></script>
+      <script src="app/admin/product/product.controller.js"></script>
+      <script src="app/admin/product/product.js"></script>
+      <script src="app/admin/user/admin.controller.js"></script>
+      <script src="app/admin/user/admin.js"></script>
+      <script src="app/core/_core.module.js"></script>
+      <script src="app/core/config.js"></script>
+      <script src="app/customer/_customer.module.js"></script>
+      <script src="app/customer/dashboard/dashboard.controller.js"></script>
+      <script src="app/customer/dashboard/dashboard.js"></script>
+      <script src="app/customer/history/history.controller.js"></script>
+      <script src="app/customer/history/history.js"></script>
+      <script src="app/customer/tracking/tracking.controller.js"></script>
+      <script src="app/customer/tracking/tracking.js"></script>
+      <script src="app/guest/_guest.module.js"></script>
+      <script src="app/guest/home/home.controller.js"></script>
+      <script src="app/guest/home/home.js"></script>
+      <script src="app/guest/service/service.controller.js"></script>
+      <script src="app/guest/service/service.js"></script>
+      <script src="app/layout/_layout.module.js"></script>
+      <script src="app/layout/footer/footer.directive.js"></script>
+      <script src="app/layout/navbar/navbar.controller.js"></script>
+      <script src="app/layout/navbar/navbar.directive.js"></script>
+      <script src="components/_components.module.js"></script>
       <script src="components/auth/auth.service.js"></script>
       <script src="components/auth/user.service.js"></script>
+      <script src="components/directives/_directives.module.js"></script>
       <script src="components/directives/fallback-src/fallback-src.directive.js"></script>
       <script src="components/directives/form/compareto.directive.js"></script>
       <script src="components/directives/form/mongoose-error.directive.js"></script>
       <script src="components/directives/form/validator.record.directive.js"></script>
+      <script src="components/filters/_filters.module.js"></script>
       <script src="components/filters/props/props.filter.js"></script>
-      <script src="components/footer/footer.directive.js"></script>
-      <script src="components/navbar/navbar.controller.js"></script>
-      <script src="components/navbar/navbar.directive.js"></script>
       <script src="components/oauth-buttons/oauth-buttons.controller.js"></script>
       <script src="components/oauth-buttons/oauth-buttons.directive.js"></script>
+      <script src="components/resources/_resouces.module.js"></script>
       <script src="components/resources/customer/customer.service.js"></script>
       <script src="components/resources/material/material.service.js"></script>
       <script src="components/resources/order/order.service.js"></script>
+      <script src="components/resources/our-service/our-service.service.js"></script>
       <script src="components/resources/product/product.service.js"></script>
+      <script src="components/services/_services.module.js"></script>
       <script src="components/services/logger/logger.service.js"></script>
       <script src="components/services/modal/modal.service.js"></script>
       <script src="components/services/utils/utils.service.js"></script>
       <script src="components/socket/socket.service.js"></script>
-      <script src="components/utils/register.js"></script>
       <!-- endinjector -->
     <!-- endbuild -->
   </body>

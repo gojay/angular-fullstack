@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('fullstackApp')
+angular.module('app.directives')
   .factory('fallbackSrc', fallbackSrc);
 
 function fallbackSrc() {

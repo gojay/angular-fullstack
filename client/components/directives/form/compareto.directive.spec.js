@@ -3,7 +3,7 @@
 xdescribe('Directive: compareto', function () {
 
   // load the directive's module
-  beforeEach(module('angularFullstackSequelizeDemoApp'));
+  beforeEach(module('fullstackApp'));
 
   var element,
     scope;

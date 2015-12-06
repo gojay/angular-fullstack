@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('fullstackApp')
+angular.module('app.services')
 	.factory('logger', logger);
 
 logger.$inject = ['$log', 'toastr'];

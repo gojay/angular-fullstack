@@ -6,7 +6,7 @@
 
 'use strict';
 
-angular.module('fullstackApp')
+angular.module('app.directives')
     .directive('recordAvailabilityValidator', [
         '$http', '$q', '$timeout',
         function($http, $q, $timeout) {

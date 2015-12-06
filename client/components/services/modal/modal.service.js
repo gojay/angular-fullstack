@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('fullstackApp')
+angular.module('app.services')
   .factory('Modal', Modal);
 
 Modal.$inject = ['$rootScope', '$modal', 'logger'];

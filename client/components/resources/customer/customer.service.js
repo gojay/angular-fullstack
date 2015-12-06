@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('fullstackApp')
+angular.module('app.resources')
   .service('Customer', CutomerResource);
 
 CutomerResource.$inject = ['$resource'];

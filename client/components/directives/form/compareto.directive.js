@@ -4,7 +4,7 @@
  */
 'use strict';
 
-angular.module('fullstackApp')
+angular.module('app.directives')
     .directive('compareTo', function() {
         return {
             require: "ngModel",

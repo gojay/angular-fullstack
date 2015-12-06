@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('fullstackApp')
+angular.module('app.filters')
 	.factory('propsFilter', propsFilter);
 
 function propsFilter() {
