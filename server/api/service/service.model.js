@@ -8,24 +8,41 @@ var Q = require('q');
 
 var ServiceSchema = new Schema({
   name: String,
-  title: String,
-  price: Number
+  price: { type: Number, default: 0 },
+  isRoot: { type: Boolean, default: false }
 });
 
 ServiceSchema.statics = {
 	getRoots() {
-		return this.findOne({ name: 'root' }).select('_id').exec()
+		return this.findOne({ isRoot: true }).select('_id').exec()
 			.then((root) => {
 				if(!root) return [];
 				return this.find({ parent: root._id }).select('name price').exec();
 			});
 	},
 
-	getAllChildren() {
-		return this.findOne({ name: 'root' }).exec().then((root) => {
+  getAll() {
+    return this.findOne({ isRoot: true }).exec().then((root) => {
+      if(!root) return [];
+      return Q.Promise((resolve, reject) => {
+        root.getChildrenTree({ fields: '_id name price isRoot' }, (err, result) => {
+          if(err) {
+            reject(err)
+          } else {
+            var obj = root.toObject();
+            obj.children = result;
+            resolve([obj]);
+          }
+        });
+      })
+    });
+  },
+
+	getChildren() {
+		return this.findOne({ isRoot: true }).exec().then((root) => {
 			if(!root) return [];
 			return Q.Promise((resolve, reject) => {
-      	root.getChildrenTree({ fields: 'path name title price' }, (err, result) => {
+      	root.getChildrenTree({ fields: 'name price isRoot' }, (err, result) => {
       		if(err) {
       			reject(err)
       		} else {
@@ -42,14 +59,24 @@ ServiceSchema.statics = {
       .then((service) => {
       	if(!service) return { services: [], cost: 0 };
       	return Q.Promise((resolve, reject) => {
-	        service.getAncestors({ name: { $ne: 'root' } }, 'name price', (err, result) => {
+	        service.getAncestors({ isRoot: false }, 'name price', (err, result) => {
 	        	if(err) return reject(err);
 	          result.push(_.pick(service, ['name', 'price']));
 	          resolve({ services: result, cost: _.sum(result, 'price') });
 	        });
       	})
       });
-	}
+	},
+
+  add(data) {
+    return this.findById(data.parent).exec().then((parent) => {
+      if(!parent) throw new Error('Parent not found');
+      var newService = _.pick(data, ['name', 'price', 'uparent'])
+      var service = new this(newService);
+      service.parent = parent;
+      return service.savePromise();
+    });
+  }
 };
 
 ServiceSchema.methods = {

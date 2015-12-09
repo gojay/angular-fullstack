@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('fullstackApp')
+angular.module('app.guest')
   .config(function ($stateProvider) {
     $stateProvider
       .state('service', {

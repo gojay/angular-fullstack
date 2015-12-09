@@ -1,4 +1,4 @@
-*
+/*
  * Populate DB with sample data on server start
  * to disable, edit config/environment/index.js, and set `seedDB: false`
  */
@@ -96,238 +96,239 @@ var seed = {
   service() {
     return Service.remove().exec()
       .then(function() {
-        var services = [
-          {
-            name: 'repairs',
-            title: 'Repairs',
-            price: PRICES[Math.floor(Math.random()*PRICES.length)],
-            children: [
-              {
-                parent: 'root',
-                name: 'mobile',
-                title: 'Mobile Device',
-                price: PRICES[Math.floor(Math.random()*PRICES.length)],
-                children: [
-                  {
-                    // parent: 'repairs',
-                    name: 'smartphone',
-                    title: 'Smartphone',
-                    price: PRICES[Math.floor(Math.random()*PRICES.length)],
-                    children: [
-                      {
-                        // parent: 'mobile',
-                        name: 'apple',
-                        title: 'Apple',
-                        price: PRICES[Math.floor(Math.random()*PRICES.length)]
-                      },
-                      {
-                        // parent: 'mobile',
-                        name: 'asus',
-                        title: 'ASUS',
-                        price: PRICES[Math.floor(Math.random()*PRICES.length)]
-                      },
-                      {
-                        // parent: 'mobile',
-                        name: 'samsung',
-                        title: 'Samsung',
-                        price: PRICES[Math.floor(Math.random()*PRICES.length)]
-                      },
-                      {
-                        // parent: 'mobile',
-                        name: 'lg',
-                        title: 'LG',
-                        price: PRICES[Math.floor(Math.random()*PRICES.length)]
-                      }
-                    ]
-                  },
-                  {
-                    // parent: 'repairs',
-                    name: 'tablet',
-                    title: 'Tablet',
-                    price: PRICES[Math.floor(Math.random()*PRICES.length)],
-                    children: [
-                      {
-                        // parent: 'mobile',
-                        name: 'apple',
-                        title: 'Apple',
-                        price: PRICES[Math.floor(Math.random()*PRICES.length)]
-                      },
-                      {
-                        // parent: 'mobile',
-                        name: 'asus',
-                        title: 'ASUS',
-                        price: PRICES[Math.floor(Math.random()*PRICES.length)]
-                      },
-                      {
-                        // parent: 'mobile',
-                        name: 'samsung',
-                        title: 'Samsung',
-                        price: PRICES[Math.floor(Math.random()*PRICES.length)]
-                      },
-                      {
-                        // parent: 'mobile',
-                        name: 'lg',
-                        title: 'LG',
-                        price: PRICES[Math.floor(Math.random()*PRICES.length)]
-                      }
-                    ]
-                  }
-                ]
-              },
-              {
-                // parent: 'root',
-                name: 'computer',
-                title: 'Computer',
-                price: PRICES[Math.floor(Math.random()*PRICES.length)],
-                children: [
-                  {
-                    // parent: 'repairs',
-                    name: 'desktop',
-                    title: 'Desktop',
-                    price: PRICES[Math.floor(Math.random()*PRICES.length)],
-                    children: [
-                      {
-                        // parent: 'computer',
-                        name: 'apple',
-                        title: 'Apple',
-                        price: PRICES[Math.floor(Math.random()*PRICES.length)]
-                      },
-                      {
-                        // parent: 'computer',
-                        name: 'asus',
-                        title: 'ASUS',
-                        price: PRICES[Math.floor(Math.random()*PRICES.length)]
-                      },
-                      {
-                        // parent: 'computer',
-                        name: 'samsung',
-                        title: 'Samsung',
-                        price: PRICES[Math.floor(Math.random()*PRICES.length)]
-                      },
-                      {
-                        // parent: 'computer',
-                        name: 'lg',
-                        title: 'LG',
-                        price: PRICES[Math.floor(Math.random()*PRICES.length)]
-                      }
-                    ]
-                  },
-                  {
-                    // parent: 'repairs',
-                    name: 'laptop',
-                    title: 'Laptop',
-                    children: [
-                      {
-                        // parent: 'computer',
-                        name: 'apple',
-                        title: 'Apple',
-                        price: PRICES[Math.floor(Math.random()*PRICES.length)]
-                      },
-                      {
-                        // parent: 'computer',
-                        name: 'asus',
-                        title: 'ASUS',
-                        price: PRICES[Math.floor(Math.random()*PRICES.length)]
-                      },
-                      {
-                        // parent: 'computer',
-                        name: 'samsung',
-                        title: 'Samsung',
-                        price: PRICES[Math.floor(Math.random()*PRICES.length)]
-                      },
-                      {
-                        // parent: 'computer',
-                        name: 'lg',
-                        title: 'LG',
-                        price: PRICES[Math.floor(Math.random()*PRICES.length)]
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            name: 'setup',
-            title: 'Setup & Instalations',
-            price: PRICES[Math.floor(Math.random()*PRICES.length)],
-            children: [
-              {
-                // parent: 'root',
-                name: 'printer',
-                title: 'Printer Setup',
-                price: PRICES[Math.floor(Math.random()*PRICES.length)]
-              },
-              {
-                // parent: 'root',
-                name: 'computer',
-                title: 'Computer Setup',
-                price: PRICES[Math.floor(Math.random()*PRICES.length)]
-              },
-              {
-                // parent: 'root',
-                name: 'server',
-                title: 'Server Setup',
-                price: PRICES[Math.floor(Math.random()*PRICES.length)]
-              },
-              {
-                // parent: 'root',
-                name: 'router',
-                title: 'Router Setup',
-                price: PRICES[Math.floor(Math.random()*PRICES.length)]
-              },
-              {
-                // parent: 'root',
-                name: 'software',
-                title: 'Software Install',
-                price: PRICES[Math.floor(Math.random()*PRICES.length)],
-                children: [
-                  {
-                    // parent: 'setup',
-                    name: 'mobile',
-                    title: 'Mobile Device',
-                    price: PRICES[Math.floor(Math.random()*PRICES.length)],
-                    children: [
-                      {
-                        // parent: 'software',
-                        name: 'ios',
-                        title: 'iOS / Apple',
-                        price: PRICES[Math.floor(Math.random()*PRICES.length)]
-                      },
-                      {
-                        // parent: 'software',
-                        name: 'android',
-                        title: 'Android',
-                        price: PRICES[Math.floor(Math.random()*PRICES.length)]
-                      }
-                    ]
-                  },
-                  {
-                    // parent: 'setup',
-                    name: 'mobile',
-                    title: 'Computer',
-                    price: PRICES[Math.floor(Math.random()*PRICES.length)],
-                    children: [
-                      {
-                        // parent: 'software',
-                        name: 'mac',
-                        title: 'Mac / Apple',
-                        price: PRICES[Math.floor(Math.random()*PRICES.length)]
-                      },
-                      {
-                        // parent: 'software',
-                        name: 'windows',
-                        title: 'Windows',
-                        price: PRICES[Math.floor(Math.random()*PRICES.length)]
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
-        ];
-        return Service.create(services);
+        // var services = [
+        //   {
+        //     name: 'repairs',
+        //     title: 'Repairs',
+        //     price: PRICES[Math.floor(Math.random()*PRICES.length)],
+        //     children: [
+        //       {
+        //         parent: 'root',
+        //         name: 'mobile',
+        //         title: 'Mobile Device',
+        //         price: PRICES[Math.floor(Math.random()*PRICES.length)],
+        //         children: [
+        //           {
+        //             // parent: 'repairs',
+        //             name: 'smartphone',
+        //             title: 'Smartphone',
+        //             price: PRICES[Math.floor(Math.random()*PRICES.length)],
+        //             children: [
+        //               {
+        //                 // parent: 'mobile',
+        //                 name: 'apple',
+        //                 title: 'Apple',
+        //                 price: PRICES[Math.floor(Math.random()*PRICES.length)]
+        //               },
+        //               {
+        //                 // parent: 'mobile',
+        //                 name: 'asus',
+        //                 title: 'ASUS',
+        //                 price: PRICES[Math.floor(Math.random()*PRICES.length)]
+        //               },
+        //               {
+        //                 // parent: 'mobile',
+        //                 name: 'samsung',
+        //                 title: 'Samsung',
+        //                 price: PRICES[Math.floor(Math.random()*PRICES.length)]
+        //               },
+        //               {
+        //                 // parent: 'mobile',
+        //                 name: 'lg',
+        //                 title: 'LG',
+        //                 price: PRICES[Math.floor(Math.random()*PRICES.length)]
+        //               }
+        //             ]
+        //           },
+        //           {
+        //             // parent: 'repairs',
+        //             name: 'tablet',
+        //             title: 'Tablet',
+        //             price: PRICES[Math.floor(Math.random()*PRICES.length)],
+        //             children: [
+        //               {
+        //                 // parent: 'mobile',
+        //                 name: 'apple',
+        //                 title: 'Apple',
+        //                 price: PRICES[Math.floor(Math.random()*PRICES.length)]
+        //               },
+        //               {
+        //                 // parent: 'mobile',
+        //                 name: 'asus',
+        //                 title: 'ASUS',
+        //                 price: PRICES[Math.floor(Math.random()*PRICES.length)]
+        //               },
+        //               {
+        //                 // parent: 'mobile',
+        //                 name: 'samsung',
+        //                 title: 'Samsung',
+        //                 price: PRICES[Math.floor(Math.random()*PRICES.length)]
+        //               },
+        //               {
+        //                 // parent: 'mobile',
+        //                 name: 'lg',
+        //                 title: 'LG',
+        //                 price: PRICES[Math.floor(Math.random()*PRICES.length)]
+        //               }
+        //             ]
+        //           }
+        //         ]
+        //       },
+        //       {
+        //         // parent: 'root',
+        //         name: 'computer',
+        //         title: 'Computer',
+        //         price: PRICES[Math.floor(Math.random()*PRICES.length)],
+        //         children: [
+        //           {
+        //             // parent: 'repairs',
+        //             name: 'desktop',
+        //             title: 'Desktop',
+        //             price: PRICES[Math.floor(Math.random()*PRICES.length)],
+        //             children: [
+        //               {
+        //                 // parent: 'computer',
+        //                 name: 'apple',
+        //                 title: 'Apple',
+        //                 price: PRICES[Math.floor(Math.random()*PRICES.length)]
+        //               },
+        //               {
+        //                 // parent: 'computer',
+        //                 name: 'asus',
+        //                 title: 'ASUS',
+        //                 price: PRICES[Math.floor(Math.random()*PRICES.length)]
+        //               },
+        //               {
+        //                 // parent: 'computer',
+        //                 name: 'samsung',
+        //                 title: 'Samsung',
+        //                 price: PRICES[Math.floor(Math.random()*PRICES.length)]
+        //               },
+        //               {
+        //                 // parent: 'computer',
+        //                 name: 'lg',
+        //                 title: 'LG',
+        //                 price: PRICES[Math.floor(Math.random()*PRICES.length)]
+        //               }
+        //             ]
+        //           },
+        //           {
+        //             // parent: 'repairs',
+        //             name: 'laptop',
+        //             title: 'Laptop',
+        //             children: [
+        //               {
+        //                 // parent: 'computer',
+        //                 name: 'apple',
+        //                 title: 'Apple',
+        //                 price: PRICES[Math.floor(Math.random()*PRICES.length)]
+        //               },
+        //               {
+        //                 // parent: 'computer',
+        //                 name: 'asus',
+        //                 title: 'ASUS',
+        //                 price: PRICES[Math.floor(Math.random()*PRICES.length)]
+        //               },
+        //               {
+        //                 // parent: 'computer',
+        //                 name: 'samsung',
+        //                 title: 'Samsung',
+        //                 price: PRICES[Math.floor(Math.random()*PRICES.length)]
+        //               },
+        //               {
+        //                 // parent: 'computer',
+        //                 name: 'lg',
+        //                 title: 'LG',
+        //                 price: PRICES[Math.floor(Math.random()*PRICES.length)]
+        //               }
+        //             ]
+        //           }
+        //         ]
+        //       }
+        //     ]
+        //   },
+        //   {
+        //     name: 'setup',
+        //     title: 'Setup & Instalations',
+        //     price: PRICES[Math.floor(Math.random()*PRICES.length)],
+        //     children: [
+        //       {
+        //         // parent: 'root',
+        //         name: 'printer',
+        //         title: 'Printer Setup',
+        //         price: PRICES[Math.floor(Math.random()*PRICES.length)]
+        //       },
+        //       {
+        //         // parent: 'root',
+        //         name: 'computer',
+        //         title: 'Computer Setup',
+        //         price: PRICES[Math.floor(Math.random()*PRICES.length)]
+        //       },
+        //       {
+        //         // parent: 'root',
+        //         name: 'server',
+        //         title: 'Server Setup',
+        //         price: PRICES[Math.floor(Math.random()*PRICES.length)]
+        //       },
+        //       {
+        //         // parent: 'root',
+        //         name: 'router',
+        //         title: 'Router Setup',
+        //         price: PRICES[Math.floor(Math.random()*PRICES.length)]
+        //       },
+        //       {
+        //         // parent: 'root',
+        //         name: 'software',
+        //         title: 'Software Install',
+        //         price: PRICES[Math.floor(Math.random()*PRICES.length)],
+        //         children: [
+        //           {
+        //             // parent: 'setup',
+        //             name: 'mobile',
+        //             title: 'Mobile Device',
+        //             price: PRICES[Math.floor(Math.random()*PRICES.length)],
+        //             children: [
+        //               {
+        //                 // parent: 'software',
+        //                 name: 'ios',
+        //                 title: 'iOS / Apple',
+        //                 price: PRICES[Math.floor(Math.random()*PRICES.length)]
+        //               },
+        //               {
+        //                 // parent: 'software',
+        //                 name: 'android',
+        //                 title: 'Android',
+        //                 price: PRICES[Math.floor(Math.random()*PRICES.length)]
+        //               }
+        //             ]
+        //           },
+        //           {
+        //             // parent: 'setup',
+        //             name: 'mobile',
+        //             title: 'Computer',
+        //             price: PRICES[Math.floor(Math.random()*PRICES.length)],
+        //             children: [
+        //               {
+        //                 // parent: 'software',
+        //                 name: 'mac',
+        //                 title: 'Mac / Apple',
+        //                 price: PRICES[Math.floor(Math.random()*PRICES.length)]
+        //               },
+        //               {
+        //                 // parent: 'software',
+        //                 name: 'windows',
+        //                 title: 'Windows',
+        //                 price: PRICES[Math.floor(Math.random()*PRICES.length)]
+        //               }
+        //             ]
+        //           }
+        //         ]
+        //       }
+        //     ]
+        //   }
+        // ];
+        
+        return Service.create({ name: 'Services', isRoot: true });
       });
   },
   all() {
@@ -338,28 +339,9 @@ var seed = {
     ]);
   }
 };
+
 seed.service().then(function() {
   console.log('seed successfull');
 }).then(null, function (error) {
   console.log('seed error', error);
 });
-
-/*
-User.find({}).removeAsync()
-  .then(function() {
-    User.createAsync({
-      provider: 'local',
-      name: 'Test User',
-      email: 'test@example.com',
-      password: 'test'
-    }, {
-      provider: 'local',
-      role: 'admin',
-      name: 'Admin',
-      email: 'admin@example.com',
-      password: 'admin'
-    })
-    .then(function() {
-      console.log('finished populating users');
-    });
-  });

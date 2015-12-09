@@ -388,13 +388,9 @@ describe.only('Service model', function() {
     }
   ];
 
-  // before((done) => {
-  //   Service.remove({}, done);
-  // })
-
   it.skip('should build service', (done) => {
     
-    var root = new Service({ name: 'root' });
+    var root = new Service({ name: 'Services', isRoot: true });
 
     var repairs = new Service({
       name: 'Repairs',
@@ -498,6 +494,8 @@ describe.only('Service model', function() {
           });
         })
       });
+    }).then(null, (err) => {
+      console.log('error', err);
     })
   });
 
@@ -509,16 +507,32 @@ describe.only('Service model', function() {
   });
 
   it('should get children', (done) => {
-    Service.getAllChildren().then((result) => {
+    Service.getAll().then((result) => {
       console.log(JSON.stringify(result, null, 1));
       done();
     });
   });
 
   it('should get cost for "repair apple"', (done) => {
-    Service.getCosts('566469acd53e9ec423331c8d').then((result) => {
+    Service.getCosts('5667d526e868df0c1c9cf627').then((result) => {
       console.log(JSON.stringify(result, null, 1));
       done();
     });
-  })
+  });
+
+  it('should add "xiaomi" on smartphone using "add" ', (done) => {
+    Service.findOne({ name: { $regex: 'smartphone', $options: 'i' } }).exec()
+      .then((smartphone) => {
+        return Service.add(smartphone._id.toString(), { name: 'Xiaomi', price: PRICES[Math.floor(Math.random()*PRICES.length)] });
+      })
+      .then((result) => {
+        result.getAncestors({ isRoot: false }, 'name price', (err, _result_) => {
+          done();
+        });
+      })
+  });
+
+  after((done) => {
+    Service.remove({ name: { $regex: 'xiaomi', $options: 'i' } }, done);
+  });
 })

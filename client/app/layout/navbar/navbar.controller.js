@@ -6,21 +6,15 @@ class NavbarCtrl {
       'title': 'Home',
       'state': 'home'
     },{
+      'title': 'Services',
+      'state': 'service'
+    },{
       'title': 'My Account',
       'state': 'customer.dashboard'
     },{
       'title': 'Admin',
       'state': 'admin.dashboard'
-    }/*,{
-      'title': 'Products',
-      'state': 'admin.product.index'
-    },{
-      'title': 'Orders',
-      'state': 'admin.order.index'
-    },{
-      'title': 'Customers',
-      'state': 'admin.customer.index'
-    }*/];
+    }];
 
     this.isCollapsed = true;
     this.isLoggedIn = Auth.isLoggedIn;

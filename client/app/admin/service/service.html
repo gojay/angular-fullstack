@@ -1,0 +1,63 @@
+<div class="row">
+  <div class="col-lg-12">
+    <h3>{{vm.name}}</h3>
+
+    <div ui-tree id="tree-root">
+      <ol ui-tree-nodes ng-model="vm.data">
+        <li ng-repeat="service in vm.data" ui-tree-node ng-include="'service-children.html'"></li>
+      </ol>
+    </div>
+  </div>
+</div>
+
+<script type="text/ng-template" id="service-children.html">
+  <div ui-tree-handle class="tree-node tree-node-content">
+    <div class="row">
+			<div class="col-md-8">
+		    <a class="btn btn-success btn-xs" ng-if="service.children && service.children.length > 0" data-nodrag ng-click="vm.toggle(this)">
+		    	<i class="fa"
+		        ng-class="{
+		          'fa-chevron-right': collapsed,
+		          'fa-chevron-down': !collapsed
+		        }">
+		      </i>
+		    </a>
+				<label ng-if="!service.edited">
+					{{service.name}}
+					<small ng-if="service.price">( {{service.price | currency}} )</small>
+				</label>
+		    <form name="form" class="form-inline" ng-submit="vm.saveItem(form, this)" ng-if="service.edited">
+				  <div class="form-group">
+				    <input type="text" class="form-control" name="name" ng-model="vm.model.name" placeholder="Enter service name.." required focus-if="vm.options.focused">
+				  </div>
+				  <div class="form-group" ng-class="{ 'has-error': form.price.$invalid }">
+				    <input type="text" ui-money-mask="0" class="form-control" name="price" ng-model="vm.model.price" placeholder="Enter price">
+				  </div>
+				  <button type="submit" class="btn btn-success">
+		  			<i class="fa fa-circle-o-notch fa-spin" ng-if="service.loading"></i>
+		  			{{ service.loading ? 'Saving...' : 'Save' }}
+				  </button>
+				</form>
+			</div>
+			<div class="col-md-4">
+		    <a class="pull-right btn btn-danger btn-xs" data-nodrag ng-click="vm.removeItem(this)" ng-if="!service.isRoot">
+		    	<i class="fa fa-times" ng-if="!service.deleting"></i>
+		    	<span ng-if="service.deleting"><i class="fa fa-circle-o-notch fa-spin"></i> Deleting..</span>
+		  	</a>
+		    <a class="pull-right btn btn-primary btn-xs" data-nodrag ng-disabled="vm.options.edited" ng-click="vm.addItem(this)" style="margin-right: 8px;">
+		    	<i class="fa fa-plus"></i>
+		  	</a>
+		    <a class="pull-right btn btn-default btn-xs" data-nodrag ng-click="vm.editItem(this)" ng-if="!service.isRoot || service.edited" style="margin-right: 8px;" title="Edit">
+		    	<i class="fa fa-edit" ng-if="!service.edited"></i>
+		    	<i class="fa fa-ban" ng-if="service.edited"></i>
+		  	</a>
+			</div>
+		</div>
+  </div>
+  <ol ui-tree-nodes="" ng-model="service.children" ng-class="{hidden: collapsed}">
+    <li ng-repeat="service in service.children" ui-tree-node ng-include="'service-children.html'">
+    </li>
+  </ol>
+</script>
+
+<footer></footer>

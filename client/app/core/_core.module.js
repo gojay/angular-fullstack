@@ -11,6 +11,7 @@
 	  'ui.select',
 	  'ui.utils', 
 	  'ui.utils.masks',
+	  'ui.tree',
 	  'btford.socket-io',
 	  'validation.match',
 	  'toastr',

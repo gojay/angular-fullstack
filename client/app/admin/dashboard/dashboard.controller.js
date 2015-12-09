@@ -6,21 +6,25 @@
 			this.name = 'Welcome Admin!!';
 
 			this.menus = [{
-				title: 'Material',
+				title: 'Materials',
 				sref: 'admin.material.index',
 				icon: 'fa fa-clone fa-5x'
 			},{
-				title: 'Product',
+				title: 'Products',
 				sref: 'admin.product.index',
 				icon: 'fa fa-square fa-5x'
 			},{
-				title: 'Order',
+				title: 'Orders',
 				sref: 'admin.order.index',
 				icon: 'fa fa-shopping-bag fa-5x'
 			},{
-				title: 'Customer',
+				title: 'Customers',
 				sref: 'admin.customer.index',
 				icon: 'fa fa-users fa-5x'
+			}, {
+				title: 'Services',
+				sref: 'admin.service.index',
+				icon: 'fa fa-wrench fa-5x'
 			}];
 		}
 	}

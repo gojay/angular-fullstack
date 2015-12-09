@@ -9,7 +9,7 @@
 
 	ServiceCtrl.$inject = ['$scope', 'OurService'];
 
-	angular.module('fullstackApp')
+	angular.module('app.guest')
 	  .controller('ServiceCtrl', ServiceCtrl);
 
 })();

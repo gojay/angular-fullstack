@@ -63,9 +63,9 @@ function removeEntity(res) {
 
 // Gets a list of Services
 exports.index = function(req, res) {
-  Service.findAsync()
+  Service.getAll()
     .then(responseWithResult(res))
-    .catch(handleError(res));
+    .then(null, handleError(res));
 };
 
 // Gets a single Service from the DB
@@ -78,9 +78,9 @@ exports.show = function(req, res) {
 
 // Creates a new Service in the DB
 exports.create = function(req, res) {
-  Service.createAsync(req.body)
+  Service.add(req.body)
     .then(responseWithResult(res, 201))
-    .catch(handleError(res));
+    .then(null, handleError(res));
 };
 
 // Updates an existing Service in the DB
