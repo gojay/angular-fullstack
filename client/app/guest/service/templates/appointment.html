@@ -1,0 +1,21 @@
+<h1>Appointment</h1>
+<!-- Step Wizard -->
+<div class="stepwizard">
+    <div class="stepwizard-row setup-panel">
+        <div class="stepwizard-step">
+            <a ui-sref="service.appointment.step1" type="button" class="btn btn-circle" ng-class="{false:'btn-default', true:'btn-primary'}[vm.isActive('step1')]">1</a>
+            <p>Step 1</p>
+        </div>
+        <div class="stepwizard-step">
+            <a ui-sref="service.appointment.step2" type="button" class="btn btn-default btn-circle" ng-class="{false:'btn-default', true:'btn-primary'}[vm.isActive('step2')]" ng-disabled="!vm.isActive('step2')">2</a>
+            <p>Step 2</p>
+        </div>
+        <div class="stepwizard-step">
+            <a ui-sref="service.appointment.step3" type="button" class="btn btn-default btn-circle" ng-class="{false:'btn-default', true:'btn-primary'}[vm.isActive('step3')]" ng-disabled="!vm.isActive('step3')">3</a>
+            <p>Step 3</p>
+        </div>
+    </div>
+</div>
+<!-- Step Wizard END -->
+<!-- quote form -->
+<div class="slide-right" ui-view></div>

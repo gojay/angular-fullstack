@@ -63,7 +63,8 @@ function removeEntity(res) {
 
 // Gets a list of Services
 exports.index = function(req, res) {
-  Service.getAll()
+  var promise = req.query.children ? Service.getChildren() : Service.getAll() ;
+  promise
     .then(responseWithResult(res))
     .then(null, handleError(res));
 };
@@ -101,4 +102,11 @@ exports.destroy = function(req, res) {
     .then(handleEntityNotFound(res))
     .then(removeEntity(res))
     .catch(handleError(res));
+};
+
+// calculate
+exports.calculate = function(req, res) {
+  Service.getCosts(req.body)
+    .then(responseWithResult(res))
+    .then(null, handleError(res));
 };

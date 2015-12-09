@@ -42,7 +42,7 @@ ServiceSchema.statics = {
 		return this.findOne({ isRoot: true }).exec().then((root) => {
 			if(!root) return [];
 			return Q.Promise((resolve, reject) => {
-      	root.getChildrenTree({ fields: 'name price isRoot' }, (err, result) => {
+      	root.getChildrenTree({ fields: 'name' }, (err, result) => {
       		if(err) {
       			reject(err)
       		} else {
@@ -54,6 +54,9 @@ ServiceSchema.statics = {
 	},
 
 	getCosts(filter) {
+    if(_.isEmpty(filter)) {
+      throw new Error('Cannot calculate service!');
+    }
 		var find = _.isObject(filter) ? this.findOne(filter) : this.findById(filter);
 		return find.exec()
       .then((service) => {

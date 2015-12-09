@@ -11,7 +11,7 @@ angular.module('app.admin')
 	      .state('admin.service.index', {
 	        url: '/',
 	        templateUrl: 'app/admin/service/service.html',
-	        controller: 'ServiceCtrl',
+	        controller: 'AdminServiceCtrl',
 	        controllerAs: 'vm'
 	      });
   });

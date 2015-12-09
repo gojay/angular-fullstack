@@ -8,5 +8,21 @@ angular.module('app.guest')
         templateUrl: 'app/guest/service/service.html',
         controller: 'ServiceCtrl',
         controllerAs: 'vm'
-      });
+      })
+	      .state('service.appointment', {
+	        url: '/appointment',
+        	templateUrl: 'app/guest/service/templates/appointment.html',
+	      })
+		      .state('service.appointment.step1', {
+		        url: '/step1',
+		        templateUrl: 'app/guest/service/templates/step1.html',
+		      })
+		      .state('service.appointment.step2', {
+		        url: '/step2',
+		        templateUrl: 'app/guest/service/templates/step2.html',
+		      })
+		      .state('service.appointment.step3', {
+		        url: '/step3',
+		        templateUrl: 'app/guest/service/templates/step3.html',
+		      });
   });

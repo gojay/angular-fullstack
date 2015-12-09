@@ -23,7 +23,9 @@
 		      </i>
 		    </a>
 				<label ng-if="!service.edited">
-					{{service.name}}
+					<div style="float:left;padding-right: 10px;">
+		      	<ionic-letter-avatar data="{{service.name}}" shape="round" fontsize="14" height="20" width="20"></ionic-letter-avatar>
+		      </div>{{service.name}}
 					<small ng-if="service.price">( {{service.price | currency}} )</small>
 				</label>
 		    <form name="form" class="form-inline" ng-submit="vm.saveItem(form, this)" ng-if="service.edited">

@@ -1,14 +1,14 @@
 (() => {
 	'use strict';
 
-	class ServiceCtrl {
+	class AdminServiceCtrl {
 		constructor($scope, $timeout, OurService, Modal, logger) {
 			this.$timeout = $timeout;
 			this.OurService = OurService;
 			this.Modal = Modal;
 			this.logger = logger;
 
-			this.name = 'Our Service';
+			this.name = 'Our Services';
 			this.options = { edited: false, focused: false };
 
 			this._getOurService();
@@ -34,6 +34,10 @@
 			return str.toLowerCase().replace( /\b\w/g, (m) => {
         return m.toUpperCase();
       });
+		}
+
+		getInitial(str) {
+			return str.match(/\b(\w)/g).join('');      
 		}
 
 		toggle(scope) {
@@ -106,9 +110,9 @@
 		}
 	}
 
-	ServiceCtrl.$inject = ['$scope', '$timeout', 'OurService', 'Modal', 'logger'];
+	AdminServiceCtrl.$inject = ['$scope', '$timeout', 'OurService', 'Modal', 'logger'];
 
 	angular.module('app.admin')
-	  .controller('ServiceCtrl', ServiceCtrl);
+	  .controller('AdminServiceCtrl', AdminServiceCtrl);
 
 })();

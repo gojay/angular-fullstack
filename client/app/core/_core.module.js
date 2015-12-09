@@ -16,7 +16,8 @@
 	  'validation.match',
 	  'toastr',
 	  'angularMoment',
-	  'ngTable'
+	  'ngTable',
+	  'ionic-letter-avatar'
 	]);
 	
 })()

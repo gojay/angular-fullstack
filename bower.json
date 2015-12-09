@@ -25,7 +25,8 @@
     "angular-input-masks": "~2.1.1",
     "angular-toastr": "~1.6.0",
     "angular-ui-select": "~0.13.2",
-    "angular-ui-tree": "~2.11.0"
+    "angular-ui-tree": "~2.11.0",
+    "ionic-letter-avatar": "*"
   },
   "devDependencies": {
     "angular-mocks": "~1.4.0"

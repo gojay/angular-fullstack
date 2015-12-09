@@ -18,6 +18,13 @@ function OurService($resource) {
                 controller: 'search'
             }
         },
+        calculate: {
+            method: 'POST',
+            params: {
+                id: null,
+                controller: 'calculate'
+            }
+        },
         get: {
             method: 'GET',
         },
