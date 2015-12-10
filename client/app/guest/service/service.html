@@ -1,23 +1,29 @@
 <navbar></navbar>
 <div id="appointment" class="container">
-    <h1>{{vm.name}}</h1>
     <div class="stepwizard">
         <div class="stepwizard-row icon setup-panel">
-            <div class="stepwizard-step" ng-click="vm.getUpService('all')">
+            <div class="stepwizard-step" ng-click="vm.getServiceParent('all')">
                 <!-- <ionic-letter-avatar data="Services" shape="round" charcount="2"></ionic-letter-avatar> -->
-                <span class="fa-stack fa-2x">
+                <span class="fa-stack fa-4x">
                   <i class="fa fa-circle fa-stack-2x" style="color:#2196F3"></i>
                   <i class="fa fa-wrench fa-stack-1x fa-inverse" style="color:white"></i>
                 </span>
                 <!-- <p>Services</p> -->
             </div>
-            <div class="stepwizard-step cursor" ng-repeat="service in vm.services" ng-click="vm.getParentService(service)">
+            <div class="stepwizard-step cursor" ng-repeat="service in vm.services" ng-click="vm.getServiceParent(service)">
                 <ionic-letter-avatar data="{{service.name}}" shape="round"></ionic-letter-avatar>
                 <p>{{service.name}}</p>
             </div>
         </div>
     </div>
-    <div class="media cursor" ng-repeat="item in vm.data" ng-click="vm.getChildrenService(item)">
+    <h3 class="text-center">{{vm.options.title.header}}</h3>
+    <h5 class="text-center">{{vm.options.title.guide}}</h5>
+
+    <div class="text-center" ng-if="!vm.data.length && !vm.options.additionalService">
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        Loading...
+    </div>
+    <div class="media cursor" ng-repeat="item in vm.data" ng-click="vm.getServiceChildren(item)">
         <div class="media-left media-bottom pull-left">
             <ionic-letter-avatar data="{{item.name}}" shape="round"></ionic-letter-avatar>
         </div>
@@ -26,38 +32,49 @@
             <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
         </div>
     </div>
-    <form class="form-horizontal" ng-if="vm.options.additionalService && !vm.data.length">
-        <fieldset>
-            <!-- form contents -->
-            <!-- Wizard STEP 0 -->
-            <div class="row setup-content" id="step-0">
-                <div class="col-sm-12">
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label" for="textinput">Price estimate</label>
-                        <div class="col-sm-10">
-                            <h3 class="price">
-                                <span ng-if="vm.options.calculating">calculating...</span>
-                                <span ng-if="!vm.options.calculating">{{ vm.model.price | currency: 'Rp.' }}</span>
-                            </h3>
-                        </div>
-                    </div>
-                    <!-- Text additional -->
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label" for="textinput">Additional info</label>
-                        <div class="col-sm-10">
-                            <div class="input-group">
-                                <textarea rows="3" placeholder="Additional info" class="form-control" ng-model="vm.model.additional" required></textarea>
-                                <span class="input-group-addon bg-success"><i class="fa fa-comment fa-lg text-white"></i></span>
-                            </div>
-                        </div>
-                    </div>
-                    <button class="btn btn-primary nextBtn col-xs-3 pull-right" ng-click="vm.goTo('step1')" ng-disabled="!vm.model.price" type="button">
-                        Next Step <i class="fa fa-angle-double-right"></i>
-                    </button>
+
+    <div class="row margin-top-bottom-lg" ng-if="vm.options.additionalService && !vm.data.length">
+        <div class="col-sm-6">
+            <div class="list-group">
+                <div class="list-group-item" ng-repeat="summary in vm.model.summary">
+                    <h4 class="list-group-item-heading">{{summary.title}}</h4>
+                    <p class="list-group-item-text">{{summary.name}}</p>
                 </div>
             </div>
-        </fieldset>
-    </form>
+        </div>
+        <div class="col-sm-6">
+            <form class="form-horizontal">
+                <fieldset>
+                    <div class="row setup-content" id="step-0">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" for="textinput">Price estimate</label>
+                                <div class="col-sm-8">
+                                    <h3 class="price">
+                                        <span ng-if="vm.options.calculating">calculating...</span>
+                                        <span ng-if="!vm.options.calculating">{{ vm.model.service.estimate_price | currency: 'Rp.' }}</span>
+                                    </h3>
+                                </div>
+                            </div>
+                            <!-- Text additional -->
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" for="textinput">Additional info</label>
+                                <div class="col-sm-8">
+                                    <div class="input-group">
+                                        <textarea rows="3" placeholder="Additional info" class="form-control" ng-model="vm.model.service.additional" required></textarea>
+                                        <span class="input-group-addon bg-success"><i class="fa fa-comment fa-lg text-white"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary btn-block" ng-click="vm.goTo('step1')" ng-disabled="!vm.model.service.estimate_price" type="button">
+                                Next Step <i class="fa fa-angle-double-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+    </div>
     <div ui-view ng-if="!vm.options.additionalService"></div>
 </div>
 <footer></footer>

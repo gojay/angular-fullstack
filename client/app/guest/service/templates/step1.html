@@ -1,40 +1,57 @@
-<form class="form-horizontal">
+<!-- STEP 1 -->
+<form class="form-horizontal" name="form" ng-submit="vm.nextStep(form, 'step2')" novalidate>
   <fieldset>
-    <!-- form contents -->
-    <!-- Wizard STEP 0 -->
-    <div class="row setup-content" id="step-0">
+    <div class="row setup-content" id="step-1">
       <div class="col-sm-12">
         <!-- Text Name -->
-        <div class="form-group">
+        <div class="form-group" ng-class="vm.getFormClass(form.name)">
             <label class="col-sm-2 control-label" for="textinput">Name</label>
             <div class="col-sm-10">
                 <div class="input-group">
-                    <input autocomplete="on" type="text" placeholder="Full Name" class="form-control" ng-model="vm.model.user.name" required>
+                    <input autocomplete="on" type="text" placeholder="Full Name" class="form-control" ng-model="vm.model.user.name" name="name" required>
                     <span class="input-group-addon label-danger"><i class="fa fa-user fa-lg text-white"></i></span>
                 </div>
             </div>
+            <div class="col-md-10 col-md-push-2" ng-if="vm.isInteracted(form.name)" ng-messages="form.name.$error">
+              <div ng-messages-include="app/layout/_ng-messages.html"></div>
+            </div>
         </div>
         <!-- Text Email -->
-        <div class="form-group">
+        <div class="form-group" ng-class="vm.getFormClass(form.email)">
             <label class="col-sm-2 control-label" for="textinput">Email</label>
             <div class="col-sm-10">
                 <div class="input-group">
-                    <input type="email" placeholder="Email Address" class="form-control" ng-model="vm.model.user.email" required>
+                    <input type="email" placeholder="Email Address" class="form-control" name="email" required
+                      ng-model="vm.model.user.email" 
+                      ng-model-options="{ updateOn:'blur' }" 
+                      record-availability-validator="/api/customers/validator">
                     <span class="input-group-addon label-danger"><i class="fa fa-envelope fa-lg text-white"></i></span>
                 </div>
             </div>
+            <div class="col-md-10 col-md-push-2" 
+              ng-if="vm.isInteracted(form.email)" 
+              ng-messages="form.email.$error">
+                <div ng-messages-include="app/layout/_ng-messages.html"></div>
+                <p class="help-block" ng-message="recordAvailabilityValidator">This email already taken</p>
+            </div>
         </div>
         <!-- Text Tel-->
-        <div class="form-group">
-            <label class="col-sm-2 control-label" for="textinput">Tel</label>
+        <div class="form-group" ng-class="vm.getFormClass(form.phone)">
+            <label class="col-sm-2 control-label" for="textinput">Phone</label>
             <div class="col-sm-10">
               <div class="input-group">
-                  <input type="tel" placeholder="Main Contact #" class="form-control"  ng-model="vm.model.user.telephone" required>
+                  <input type="tel" placeholder="Main Contact #" class="form-control" ng-model="vm.model.user.phone" name="phone" required>
                   <span class="input-group-addon bg-success"><i class="fa fa-phone fa-lg text-white"></i></span>
               </div>
             </div>
+            <div class="col-md-10 col-md-push-2" ng-if="vm.isInteracted(form.phone)" ng-messages="form.phone.$error">
+              <div ng-messages-include="app/layout/_ng-messages.html"></div>
+            </div>
         </div>
-        <button class="btn btn-primary nextBtn col-xs-3 pull-right" ng-click="vm.goTo('step2')" type="button">
+        <!-- <button class="btn btn-primary nextBtn col-xs-3 pull-right" ng-click="vm.goTo('step2')" type="button">
+          Next Step <i class="fa fa-angle-double-right"></i> 
+        </button> -->
+        <button class="btn btn-primary nextBtn col-xs-3 pull-right" type="submit">
           Next Step <i class="fa fa-angle-double-right"></i> 
         </button>
       </div>

@@ -7,7 +7,7 @@ class BaseFormCtrl {
 		
 		this.submitted = false;
 
-    this.logger.debug('BaseFormCtrl initialized', this);
+    	this.logger.debug('BaseFormCtrl initialized', this);
 	}
 
 	getFormClass(field) {

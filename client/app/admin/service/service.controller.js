@@ -9,7 +9,10 @@
 			this.logger = logger;
 
 			this.name = 'Our Services';
-			this.options = { edited: false, focused: false };
+			this.options = { edited: false, focused: false, detail: false, modes: [
+				{ id: 0, title: 'Direct' },
+				{ id: 1, title: 'Reference' }
+			] };
 
 			this._getOurService();
 			this._reset();
@@ -18,13 +21,18 @@
 		_getOurService() {
 			this.OurService.query().$promise.then((services) => {
 				this.data = services;
+				this.references = _(services).filter((s) => {
+					return !/service/i.test(s.name);
+				}).map((s) => {
+					return _.pick(s, ['_id', 'name']);
+				}).value();
 			}).catch((error) => {
 				this.logger.error();
 			})
 		}
 
 		_reset() {
-			this.model = { name: null, price: 0 };
+			this.model = { name: null, price: 0, mode: 0, picture: null, description: null };
 			this.submited = false;
 			this.options.edited = false;
 			this.options.focused = false;
@@ -32,8 +40,8 @@
 
 		_capitalize(str) {
 			return str.toLowerCase().replace( /\b\w/g, (m) => {
-        return m.toUpperCase();
-      });
+		        return m.toUpperCase();
+		      });
 		}
 
 		getInitial(str) {
@@ -48,13 +56,13 @@
 			this.options.edited = true;
 			this.options.focused = true;
 			var item = scope.$modelValue;
-      item.children.push({
-        id: item._id,
-        parent: item._id,
-        name: item.name,
-        edited: true,
-        children: []
-      });
+			item.children.push({
+				id: item._id,
+				parent: item._id,
+				name: item.name,
+				edited: true,
+				children: []
+			});
 		}
 
 		editItem(scope) {
@@ -62,7 +70,11 @@
 			item.edited = !item.edited;
 			this.options.edited = !this.options.edited;
 			this.options.focused = !this.options.focused;
-			this.model = { name: item.name, price: item.price };
+			if(this.options.edited) {
+				this.model = _.pick(item, ['name', 'price', 'mode', 'picture', 'description', 'reference']);
+			} else {
+				this._reset();
+			}
 		}
 
 		saveItem(form, scope) {
@@ -75,6 +87,9 @@
 			// item.name = this._capitalize(item.name);
 
 			var service = new this.OurService(item);
+			if(service.reference && service.mode == 0) {
+				service.reference = null;
+			}
 			this.logger.log('Save', service);
 			service.$save().then((result) => {
 				item._id = result._id;
@@ -98,14 +113,14 @@
 				item.deleting = this.options.edited = true;
 				var service = new this.OurService(item);
 				service.$remove().then(() => {
-          this.logger.success('Success!', `Delete ${item.name}`);
-					scope.remove();
-        }).catch((error) => {
-          this.logger.error('Error occured!', `Delete ${item.name}`, error);
-        }).finally(() => {
-					item.deleting = false;
-					this._reset();
-        });
+					this.logger.success('Success!', `Delete ${item.name}`);
+						scope.remove();
+					}).catch((error) => {
+						this.logger.error('Error occured!', `Delete ${item.name}`, error);
+					}).finally(() => {
+						item.deleting = false;
+						this._reset();
+					});
 			})('');
 		}
 	}

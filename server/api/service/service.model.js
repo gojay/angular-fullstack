@@ -9,40 +9,80 @@ var Q = require('q');
 var ServiceSchema = new Schema({
   name: String,
   price: { type: Number, default: 0 },
+  picture: String,
+  description: String,
+  mode: { 
+    type: Number,
+    enum: [0, 1, 2], 
+    default: 0
+  },
+  reference: Schema.Types.ObjectId,
   isRoot: { type: Boolean, default: false }
 });
 
 ServiceSchema.statics = {
-	getRoots() {
-		return this.findOne({ isRoot: true }).select('_id').exec()
-			.then((root) => {
-				if(!root) return [];
-				return this.find({ parent: root._id }).select('name price').exec();
-			});
-	},
-
   getAll() {
-    return this.findOne({ isRoot: true }).exec().then((root) => {
-      if(!root) return [];
-      return Q.Promise((resolve, reject) => {
-        root.getChildrenTree({ fields: '_id name price isRoot' }, (err, result) => {
-          if(err) {
-            reject(err)
-          } else {
-            var obj = root.toObject();
-            obj.children = result;
-            resolve([obj]);
-          }
+    return this.find({ isRoot: true }).sort({ _id: 1 }).exec().then((roots) => {
+      if(_.isEmpty(roots)) return [];
+      var q = Q.defer();
+      var data = [];
+      var promises = _.reduce(roots, (promise, root) => {
+        return promise.then(() => {
+          return Q.Promise((resolve, reject) => {
+            root.getChildrenTree({ fields: '_id name price isRoot mode reference' }, (err, result) => {
+              if(err) {
+                reject(err)
+              } else {
+                var obj = root.toObject();
+                obj.children = result;
+                resolve(obj);
+              }
+            });
+          }).then((result) => {
+            data.push(result);
+            return data;
+          });
         });
-      })
+      }, q.promise);
+      q.resolve();
+      return promises;
     });
+    // return this.findOne({ isRoot: true }).exec().then((root) => {
+    //   if(!root) return [];
+    //   return Q.Promise((resolve, reject) => {
+    //     root.getChildrenTree({ fields: '_id name price isRoot mode' }, (err, result) => {
+    //       if(err) {
+    //         reject(err)
+    //       } else {
+    //         var obj = root.toObject();
+    //         obj.children = result;
+    //         resolve([obj]);
+    //       }
+    //     });
+    //   })
+    // });
   },
 
-	getChildren() {
-		return this.findOne({ isRoot: true }).exec().then((root) => {
+  getPrimary(parent = 'Services') {
+    return this.findOne({ name: parent, isRoot: true }).select('_id').exec()
+      .then((root) => {
+        if(!root) return [];
+        return this.find({ parent: root._id }).select('name price mode').exec();
+      });
+  },
+
+	getChildren(reference) {
+    var filters = { isRoot: true };
+    if(_.isEmpty(reference)) {
+      filters.name = 'Services';
+    } else {
+      filters._id = mongoose.Types.ObjectId(reference);
+    }
+
+		return this.findOne(filters).exec().then((root) => {
 			if(!root) return [];
 			return Q.Promise((resolve, reject) => {
-      	root.getChildrenTree({ fields: 'name' }, (err, result) => {
+      	root.getChildrenTree({ fields: 'name mode reference' }, (err, result) => {
       		if(err) {
       			reject(err)
       		} else {
@@ -53,28 +93,33 @@ ServiceSchema.statics = {
     });
 	},
 
-	getCosts(filter) {
-    if(_.isEmpty(filter)) {
-      throw new Error('Cannot calculate service!');
+	getEstimatePrice(params) {
+    if(_.isEmpty(params) || !params.ids) {
+      throw new Error('Can\'t estimated price!! fields ids is required!');
     }
-		var find = _.isObject(filter) ? this.findOne(filter) : this.findById(filter);
-		return find.exec()
-      .then((service) => {
-      	if(!service) return { services: [], cost: 0 };
-      	return Q.Promise((resolve, reject) => {
-	        service.getAncestors({ isRoot: false }, 'name price', (err, result) => {
-	        	if(err) return reject(err);
-	          result.push(_.pick(service, ['name', 'price']));
-	          resolve({ services: result, cost: _.sum(result, 'price') });
-	        });
-      	})
+
+    var ids = _.map(ids, (id) => { return mongoose.Types.ObjectId(id); });
+		return this.find({ _id: { $in: ids } }).exec()
+      .then((services) => {
+      	if(_.isEmpty(services)) return { id: service._id, lists: [], estimate_price: 0 };
+        var promises = _.map(services, (service) => {
+          console.log('service', service)
+        	return Q.Promise((resolve, reject) => {
+  	        service.getAncestors({ isRoot: false }, 'name price', (err, result) => {
+  	        	if(err) return reject(err);
+  	          result.push(_.pick(service, ['name', 'price']));
+  	          resolve({ id: service._id, lists: result, estimate_price: _.sum(result, 'price') });
+  	        });
+        	});
+        });
+        return promises;
       });
 	},
 
   add(data) {
     return this.findById(data.parent).exec().then((parent) => {
       if(!parent) throw new Error('Parent not found');
-      var newService = _.pick(data, ['name', 'price', 'uparent'])
+      var newService = _.pick(data, ['name', 'price'])
       var service = new this(newService);
       service.parent = parent;
       return service.savePromise();
@@ -96,7 +141,7 @@ ServiceSchema.methods = {
 ServiceSchema.plugin(tree, {
   pathSeparator : '#',              // Default path separator
   onDelete :      'REPARENT',       // Can be set to 'DELETE' or 'REPARENT'. Default: 'REPARENT'
-  numWorkers:     5,           			// Number of stream workers
+  // numWorkers:     5,           			// Number of stream workers
   idType:         Schema.ObjectId  	// Type used for _id. Can be, for example, String generated by shortid module
 });
 

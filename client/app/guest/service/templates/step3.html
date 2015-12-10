@@ -1,8 +1,7 @@
+<!-- STEP 3 -->
 <form class="form-horizontal">
     <fieldset>
-        <!-- form contents -->
-        <!-- Wizard STEP 0 -->
-        <div class="row setup-content" id="step-0">
+        <div class="row setup-content" id="step-3">
             <div class="col-sm-12">
                 <div class="form-group">
                     <div class="col-sm-offset-2 col-sm-8 col-sm-offset-2">
@@ -19,8 +18,8 @@
                                         <address>
                                             <strong>Billed To:</strong>
                                             <br> {{vm.model.user.name}}
-                                            <br> {{vm.model.street}}
-                                            <br> {{vm.model.city}}, {{vm.model.zip_code}}
+                                            <br> {{vm.model._address.street || vm.model.address.street}}
+                                            <br> {{vm.model._address.city || vm.model.address.city}}, {{vm.model._address.zipcode || vm.model.address.zipcode}}
                                         </address>
                                     </div>
                                     <div class="col-xs-6 text-right">
@@ -36,16 +35,16 @@
                         </div>
                         <hr>
                         <ul class="list-inline ">
-                            <li ng-repeat="service in vm.model.estimatePrice.services">
+                            <li ng-repeat="service in vm.model.service.lists">
                                 {{service.name}}
-                                <i class="fa fa-chevron-right fa-fw text-success"></i>
+                                <i class="fa fa-chevron-right fa-fw text-success" ng-hide="$last"></i>
                             </li>
                             <!-- <li>Process step 4 <i class="fa fa-smile-o fa-fw text-success "></i></li> -->
                             <!-- <button class="btn btn-info btn-xs hidden-xs pull-right ">example</button> -->
                         </ul>
                         <div class="row ">
                             <i class="fa fa-info-circle fa-3x half-top text-danger col-xs-2 "></i>
-                            <p class="small col-xs-10">{{vm.model.additional}}</p>
+                            <p class="small col-xs-10">{{vm.model.service.additional}}</p>
                         </div>
                         <hr>
                         <div class="row">
@@ -65,27 +64,32 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <!-- foreach ($order->lineItems as $line) or some such thing here -->
-                                                    <tr ng-repeat="service in vm.getOrderSummary()">
+                                                    <!-- <tr ng-repeat="service in vm.getOrderSummary()">
                                                         <td>{{service.name}}</td>
                                                         <td class="text-center">{{service.price | currency:'Rp.'}}</td>
                                                         <td class="text-right">{{service.price | currency:'Rp.'}}</td>
+                                                    </tr> -->
+                                                    <tr>
+                                                        <td>
+                                                            <ul class="list-inline ">
+                                                                <li ng-repeat="service in vm.model.service.lists">
+                                                                    {{service.name}}
+                                                                    <i class="fa fa-chevron-right fa-fw text-success" ng-hide="$last"></i>
+                                                                </li>
+                                                            </ul>
+                                                        </td>
+                                                        <td class="text-center">{{vm.model.service.estimate_price | currency:'Rp.'}}</td>
+                                                        <td class="text-right">{{vm.model.service.estimate_price | currency:'Rp.'}}</td>
                                                     </tr>
                                                     <tr>
                                                         <td class="thick-line"></td>
-                                                        <!-- <td class="thick-line"></td> -->
                                                         <td class="thick-line text-center"><strong>Subtotal</strong></td>
-                                                        <td class="text-right">{{vm.model.estimatePrice.cost | currency:'Rp.'}}</td>
+                                                        <td class="text-right">{{vm.model.service.estimate_price | currency:'Rp.'}}</td>
                                                     </tr>
-                                                    <!-- <tr>
-                                                        <td class="no-line"></td>
-                                                        <td class="no-line text-center"><strong>Shipping</strong></td>
-                                                        <td class="no-line text-right">N/A</td>
-                                                    </tr> -->
                                                     <tr>
                                                         <td class="no-line"></td>
                                                         <td class="no-line text-center"><strong>Total</strong></td>
-                                                        <td class="text-right">{{vm.model.estimatePrice.cost | currency:'Rp.'}}</td>
+                                                        <td class="text-right">{{vm.model.service.estimate_price | currency:'Rp.'}}</td>
                                                     </tr>
                                                 </tbody>
                                             </table>

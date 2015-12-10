@@ -127,6 +127,23 @@ exports.me = function(req, res, next) {
 };
 
 /**
+ * Email validator
+ */
+exports.validator = function(req, res) {
+  var q = req.query.q;
+  if(!q) {
+    return res.status(422).json({ message: 'Email is required!' });
+  }
+
+  User.count({ email: q }).exec()
+    .then(function(count) {
+      var status = count ? 422 : 200 ;
+      res.status(status).end();
+    })
+    .then(null, handleError(res));
+};
+
+/**
  * Authentication callback
  */
 exports.authCallback = function(req, res, next) {

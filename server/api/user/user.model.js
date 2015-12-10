@@ -13,7 +13,8 @@ var UserSchema = new Schema({
   },
   role: {
     type: String,
-    default: 'user'
+    enum: ['admin', 'customer'],
+    default: 'customer',
   },
   password: String,
   provider: String,
@@ -21,7 +22,15 @@ var UserSchema = new Schema({
   facebook: {},
   twitter: {},
   google: {},
-  github: {}
+  github: {},
+  // customer
+  address: [{
+    city: String,
+    street: String,
+    zipcode: String,
+    additional: String
+  }],
+  phone: String
 });
 
 /**

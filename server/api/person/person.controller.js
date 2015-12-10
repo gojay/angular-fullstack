@@ -1,25 +1,20 @@
 /**
  * Using Rails-like standard naming convention for endpoints.
- * GET     /api/services              ->  index
- * POST    /api/services              ->  create
- * GET     /api/services/:id          ->  show
- * PUT     /api/services/:id          ->  update
- * DELETE  /api/services/:id          ->  destroy
+ * GET     /api/persons              ->  index
+ * POST    /api/persons              ->  create
+ * GET     /api/persons/:id          ->  show
+ * PUT     /api/persons/:id          ->  update
+ * DELETE  /api/persons/:id          ->  destroy
  */
 
 'use strict';
 
-var mongoose = require('mongoose'),
-    ObjectId = mongoose.Types.ObjectId;
 var _ = require('lodash');
-var Q = require('q');
-
-var Service = require('./service.model');
+var Person = require('./person.model');
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
   return function(err) {
-    console.log('handleError', err);
     res.status(statusCode).send(err);
   };
 }
@@ -64,73 +59,44 @@ function removeEntity(res) {
   };
 }
 
-// Gets a list of Services
+// Gets a list of Persons
 exports.index = function(req, res) {
-  var type = req.query.type;
-  var promise;
-  switch(type) {
-    case 'primary':
-      promise = Service.getPrimary();
-      break;
-    case 'children':
-      promise = Service.getChildren(req.query.reference);
-      break;
-    default:
-      promise = Service.getAll();
-      break;
-  }
-
-  promise
+  Person.findAsync()
     .then(responseWithResult(res))
-    .then(null, handleError(res));
+    .catch(handleError(res));
 };
 
-// Gets a single Service from the DB
+// Gets a single Person from the DB
 exports.show = function(req, res) {
-  Service.findByIdAsync(req.params.id)
+  Person.findByIdAsync(req.params.id)
     .then(handleEntityNotFound(res))
     .then(responseWithResult(res))
     .catch(handleError(res));
 };
 
-// Creates a new Service in the DB
+// Creates a new Person in the DB
 exports.create = function(req, res) {
-  Service.add(req.body)
+  Person.createAsync(req.body)
     .then(responseWithResult(res, 201))
-    .then(null, handleError(res));
-};
-// Creates a new Service in the DB
-exports.parent = function(req, res) {
-  var body = req.body;
-  var service = new Service(req.body);
-  service.savePromise()
-    .then(responseWithResult(res, 201))
-    .then(null, handleError(res));
+    .catch(handleError(res));
 };
 
-// Updates an existing Service in the DB
+// Updates an existing Person in the DB
 exports.update = function(req, res) {
   if (req.body._id) {
     delete req.body._id;
   }
-  Service.findByIdAsync(req.params.id)
+  Person.findByIdAsync(req.params.id)
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(responseWithResult(res))
     .catch(handleError(res));
 };
 
-// Deletes a Service from the DB
+// Deletes a Person from the DB
 exports.destroy = function(req, res) {
-  Service.findByIdAsync(req.params.id)
+  Person.findByIdAsync(req.params.id)
     .then(handleEntityNotFound(res))
     .then(removeEntity(res))
     .catch(handleError(res));
-};
-
-// calculate
-exports.calculate = function(req, res) {
-  Service.getEstimatePrice(req.body)
-    .then(responseWithResult(res))
-    .then(null, handleError(res));
 };
