@@ -39,10 +39,13 @@
         border: 1px solid #dae2ea;
         background: #f8faff;
         color: #7c9eb2;
-    }
 
-    .tree-node form {
-        display: inline-block;
+        form {
+            display: inline-block;
+            .form-control {
+                margin-bottom: 10px;
+            }
+        }
     }
 
     .nodrop {

@@ -20,7 +20,7 @@
 
 		_getOurService() {
 			this.OurService.query().$promise.then((services) => {
-				this.data = services;
+				this.items = services;
 				this.references = _(services).filter((s) => {
 					return !/service/i.test(s.name);
 				}).map((s) => {

@@ -2,12 +2,15 @@
 	'use strict';
 
 	class ServiceCtrl {
-		constructor($scope, $state, $q, Auth, OurService, Appointment, logger) {
+		constructor($scope, $state, $q, $timeout, Auth, OurService, Appointment, logger) {
 			this.$state = $state;
 			this.$q = $q;
+			this.$timeout = $timeout;
 			this.OurService = OurService;
 			this.Appointment = Appointment;
 			this.logger = logger;
+
+			this.title = {};
 
 			this.all = [];
 			this.services = [];
@@ -18,20 +21,39 @@
 			this.isCustomer = Auth.isCustomer;
 
 			this.options = { 
-				title: {},
+				title: {
+					'repairs': {
+						1: {
+							header: 'Device Repair',
+							guide : 'Select your device',
+						},
+						3: {
+							template: true,
+							header: '<%= name %> Repair',
+							guide : 'Select your <%= name %>',
+							summary: 'Device'
+						},
+						4: {
+							summary: 'Brand'
+						},
+						5: {
+							summary: 'Model'
+						}
+					}
+				},
 				additionalService: false, 
 				addNewAddress: false,
 				calculating: false, 
 				submitted: false,
 				datePicker: {
-			      	minDate: moment().add(1, 'd').toDate(),
-			      	format: 'dd-MMMM-yyyy',
-			      	opened: false,
-			      	options: {
-			        	formatYear: 'yy',
-			        	startingDay: 1
-			      	},
-			      	disabled: []
+	      	minDate: moment().add(1, 'd').toDate(),
+	      	format: 'dd-MMMM-yyyy',
+	      	opened: false,
+	      	options: {
+	        	formatYear: 'yy',
+	        	startingDay: 1
+	      	},
+	      	disabled: []
 				}
 			};
 
@@ -52,50 +74,34 @@
 		_getTitle() {
 			return (nv) => {
 				if(_.isEmpty(nv)) {
-					this.options.title = {
+					this.title = {
 						header: 'Our Services',
 						guide : 'Select a service'
 					};
 					return;
 				}
 
-				var service = _.first(nv).name;
-				if(!/repair/i.test(service)) return;
+				var service = _.first(nv).name.toLowerCase();
+				var options = this.options.title[service];
+				if(!options) return;
 
 				var item = _.last(nv);
-				var title = item.name;
-				if(/inch/i.test(title)) {
+				var config  = options[this.services.length];
+				if(!config) return;
+
+				if(config.summary) {
+					item.summary = config.summary;
+				} else if(/repairs/i.test(service) && /inch/i.test(item.name)) {
 					item.summary = 'Model';
 				}
-				switch(nv.length) {
-					case 1:
-						this.options.title.header = 'Device Repair';
-						this.options.title.guide = 'Select your type';
-						break;
-					case 2:
-						this.options.title.header = _.capitalize(title) + ' Repair';
-						this.options.title.guide = 'Select your '+ title.toLowerCase();
-						break;
-					// device
-					case 3:
-						item.summary = 'Device';
-						break;
-					// brand
-					case 4:
-						item.summary = 'Brand';
-						break;
-					case 5:
-						this.options.title.guide = 'Select screen size';
-						break;
-					case 6:
-						var device = nv.slice(-3).map((i) => { return i.name; }).join(' ');
-						this.options.title.header = 'Select Device Issue';
-						this.options.title.guide = _.capitalize(device);
-						break;
-					case 8:
-						this.options.title.header = 'Service Summary';
-						this.options.title.guide = null;
-						break;
+
+				if(config.template) {
+					var compiledH = _.template(config.header);
+					var compiledG = _.template(config.guide);
+					this.title.header = compiledH({ name: item.name });
+					this.title.guide = compiledG({ name: item.name });
+				} else {
+					angular.extend(this.title, _.pick(config, ['header', 'guide']));
 				}
 			}
 		}
@@ -103,34 +109,44 @@
 		_getServiceSummary() {
 			if(_.isEmpty(this.services)) return;
 
-			this.model.summary = this.services.filter((s) => {
-				return s.hasOwnProperty('summary');
-			}).reduce((result, item) => {
-				result.push({
-					title: item.summary,
-					name: item.name
-				});
-				return result;
-			}, []);
+			this.options.additionalService = true;
+			this.title.header = 'Service Summary';
+			this.title.guide = null;
 
-			var issue = _.last(this.services);
-			this.model.summary.push({
-				title: 'Issue',
-				name: issue.name
+			this._calcServiceEstimatePrice();
+			this.$timeout(() => {
+				this.logger.log('summary', angular.copy(this.services));
+
+				this.model.summary = this.services.filter((s) => {
+					return _.has(s, 'summary');
+				}).reduce((arr, item) => {
+					arr.push({
+						title: item.summary,
+						name: item.name
+					});
+					return arr;
+				}, []);
+
+				// var issue = _.last(this.services);
+				// this.model.summary.push({
+				// 	title: 'Issue',
+				// 	name: issue.name
+				// });
+				
+				this.logger.log('summary', this.model.summary);
 			});
-			this.logger.log('summary', this.model.summary);
 		}
 
-		_getServiceEstimatePrice(item) {
+		_calcServiceEstimatePrice() {
 			if(_.isEmpty(this.services)) return;
 
 			var params = { ids: [] };
 			// get original service id
-			var originServiceId = _.find(this.service, (s) => {
-				return s.hasOwnProperty('reference');
+			var originService = _.find(this.services, (s) => {
+				return _.has(s, 'reference');
 			});
-			if(originServiceId) {
-				params.ids.push(originServiceId)
+			if(originService) {
+				params.ids.push(originService._id)
 			}
 			// get last service
 			var serviceId = _.last(this.services)._id;
@@ -159,7 +175,7 @@
 				if(!params) {
 					angular.extend(this.all, data);
 				}
-				this.data = data;
+				this.items = data;
 			}).catch((err) => {
 				this.logger.error('Failed', 'load services', err);
 			});
@@ -169,19 +185,17 @@
 			if(!_.find(this.services, '_id', item._id)) {
 				this.services.push(_.pick(item, ['_id', 'name', 'children', 'reference']));
 			}
-			this.data = item.children;
+			this.items = item.children;
 			// end
-			if(_.isEmpty(this.data)) {
+			if(_.isEmpty(this.items)) {
 				this.logger.log('get:service:childrenLend', item);
 				// get reference services
 				if(item.reference) {
 					this._getOurService({ reference: item.reference });
 				} 
-				// get service summary & estimate price
+				// get service summary
 				else {
-					this.options.additionalService = true;
 					this._getServiceSummary();
-					this._getServiceEstimatePrice(item);
 				}
 			}
 		}
@@ -189,7 +203,7 @@
 			this.options.additionalService = true;
 
 			if(item === 'all') {
-				this.data = this.all;
+				this.items = this.all;
 				this.services = [];
 				return;
 			}
@@ -198,7 +212,7 @@
 
 			var is = _.findIndex(this.services, { _id: item._id });
 			if(is > -1) {
-				this.data = angular.copy(this.services[is].children);
+				this.items = angular.copy(this.services[is].children);
 				_.remove(this.services, (n, k) => {
 					return k > is;
 				});
@@ -234,32 +248,32 @@
 
 		/* Appointment Step 2 : Date Picker */
 
-	    _getDisabledDP() {
-	        if (_.isEmpty(this.model.user)) return;
-	        if (!_.isEmpty(this.options.datePicker.disabled)) return;
+    _getDisabledDP() {
+        if (_.isEmpty(this.model.user)) return;
+        if (!_.isEmpty(this.options.datePicker.disabled)) return;
 
-	        this.Appointment.getDisabledPickup().$promise.then((results) => {
-	            this.options.datePicker.disabled = results;
-	            // return this.options.datePicker.disabled;
-	        }).catch((error) => {
-	            this.logger.log('_getDisabledDP:error', error);
-	        });
-	    }
-      	openDP($event) {
-	        $event.preventDefault();
-	        $event.stopPropagation();
-	        this.options.datePicker.opened = true;
-	        if (!this.model.pickuptime) {
-	            this.model.pickuptime = moment().format('DD-MMMM-YYYY');
-	        }
-	    }
-	    clearDP() {
-	        this.model.pickuptime = null;
-	    }
-	    disabledDP(date, mode) {
-	        var d = moment(date).format('DD-MM-YYYY');
-	        return this.options.datePicker.disabled.indexOf(d) > -1;
-	    }
+        this.Appointment.getDisabledPickup().$promise.then((results) => {
+            this.options.datePicker.disabled = results;
+            // return this.options.datePicker.disabled;
+        }).catch((error) => {
+            this.logger.log('_getDisabledDP:error', error);
+        });
+    }
+    	openDP($event) {
+        $event.preventDefault();
+        $event.stopPropagation();
+        this.options.datePicker.opened = true;
+        if (!this.model.pickuptime) {
+            this.model.pickuptime = moment().format('DD-MMMM-YYYY');
+        }
+    }
+    clearDP() {
+        this.model.pickuptime = null;
+    }
+    disabledDP(date, mode) {
+        var d = moment(date).format('DD-MM-YYYY');
+        return this.options.datePicker.disabled.indexOf(d) > -1;
+    }
 
 		/* Appointment Step 3 */
 
@@ -278,7 +292,7 @@
 		}
 	}
 
-	ServiceCtrl.$inject = ['$scope', '$state', '$q', 'Auth', 'OurService', 'Appointment', 'logger'];
+	ServiceCtrl.$inject = ['$scope', '$state', '$q', '$timeout', 'Auth', 'OurService', 'Appointment', 'logger'];
 
 	angular.module('app.guest')
 	  .controller('ServiceCtrl', ServiceCtrl);

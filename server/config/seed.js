@@ -94,9 +94,9 @@ var seed = {
     });
   },
   service() {
-    return Service.remove({ name: 'Issue', isRoot: true }).exec()
+    return Service.remove({ name: 'Issues', isRoot: true }).exec()
             .then(() => {
-                return Service.create({ name: 'Issue', isRoot: true });
+                return Service.create({ name: 'Issues', isRoot: true });
             });
     // return Service.remove().exec().then(function() {
     //     return Service.create({ name: 'Services', isRoot: true });

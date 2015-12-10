@@ -9,11 +9,11 @@ class NavbarCtrl {
       'title': 'Services',
       'state': 'service'
     },{
-      'title': 'My Account',
-      'state': 'customer.dashboard'
-    },{
       'title': 'Admin',
       'state': 'admin.dashboard'
+    },{
+      'title': 'My Account',
+      'state': 'customer.dashboard'
     }];
 
     this.isCollapsed = true;

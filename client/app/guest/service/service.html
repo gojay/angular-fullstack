@@ -16,24 +16,26 @@
             </div>
         </div>
     </div>
-    <h3 class="text-center">{{vm.options.title.header}}</h3>
-    <h5 class="text-center">{{vm.options.title.guide}}</h5>
 
-    <div class="text-center" ng-if="!vm.data.length && !vm.options.additionalService">
+    <h3 class="text-center">{{vm.title.header}}</h3>
+    <h5 class="text-center">{{vm.title.guide}}</h5>
+
+    <div class="text-center" ng-if="!vm.items.length && !vm.options.additionalService">
         <i class="fa fa-circle-o-notch fa-spin"></i>
         Loading...
     </div>
-    <div class="media cursor" ng-repeat="item in vm.data" ng-click="vm.getServiceChildren(item)">
+    <div class="media cursor" ng-repeat="item in vm.items" ng-click="vm.getServiceChildren(item)">
         <div class="media-left media-bottom pull-left">
             <ionic-letter-avatar data="{{item.name}}" shape="round"></ionic-letter-avatar>
         </div>
         <div class="media-body">
             <h4 class="media-heading">{{item.name}}</h4>
-            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            <p ng-if="item.description">{{item.description}}</p>
+            <p ng-if="!item.description">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
         </div>
     </div>
 
-    <div class="row margin-top-bottom-lg" ng-if="vm.options.additionalService && !vm.data.length">
+    <div class="row margin-top-bottom-lg" ng-if="vm.options.additionalService && !vm.items.length">
         <div class="col-sm-6">
             <div class="list-group">
                 <div class="list-group-item" ng-repeat="summary in vm.model.summary">

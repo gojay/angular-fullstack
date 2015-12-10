@@ -22,45 +22,17 @@ var ServiceSchema = new Schema({
 
 ServiceSchema.statics = {
   getAll() {
-    return this.find({ isRoot: true }).sort({ _id: 1 }).exec().then((roots) => {
+    return this.find({ isRoot: true }).exec().then((roots) => {
       if(_.isEmpty(roots)) return [];
-      var q = Q.defer();
-      var data = [];
-      var promises = _.reduce(roots, (promise, root) => {
-        return promise.then(() => {
-          return Q.Promise((resolve, reject) => {
-            root.getChildrenTree({ fields: '_id name price isRoot mode reference' }, (err, result) => {
-              if(err) {
-                reject(err)
-              } else {
-                var obj = root.toObject();
-                obj.children = result;
-                resolve(obj);
-              }
-            });
-          }).then((result) => {
-            data.push(result);
-            return data;
-          });
+      var promises = roots.map((root) => {
+        return root.getChildrenAsync().then((result) => {
+          var obj = root.toObject();
+          obj.children = result;
+          return obj;
         });
-      }, q.promise);
-      q.resolve();
-      return promises;
+      });
+      return Q.all(promises);
     });
-    // return this.findOne({ isRoot: true }).exec().then((root) => {
-    //   if(!root) return [];
-    //   return Q.Promise((resolve, reject) => {
-    //     root.getChildrenTree({ fields: '_id name price isRoot mode' }, (err, result) => {
-    //       if(err) {
-    //         reject(err)
-    //       } else {
-    //         var obj = root.toObject();
-    //         obj.children = result;
-    //         resolve([obj]);
-    //       }
-    //     });
-    //   })
-    // });
   },
 
   getPrimary(parent = 'Services') {
@@ -79,44 +51,39 @@ ServiceSchema.statics = {
       filters._id = mongoose.Types.ObjectId(reference);
     }
 
-		return this.findOne(filters).exec().then((root) => {
-			if(!root) return [];
-			return Q.Promise((resolve, reject) => {
-      	root.getChildrenTree({ fields: 'name mode reference' }, (err, result) => {
-      		if(err) {
-      			reject(err)
-      		} else {
-      			resolve(result);
-      		}
-      	});
-			})
+    return this.findOne(filters).exec().then((root) => {
+      if(!root) return [];
+      return root.getChildrenAsync();
     });
-	},
+  },
 
 	getEstimatePrice(params) {
     if(_.isEmpty(params) || !params.ids) {
       throw new Error('Can\'t estimated price!! fields ids is required!');
     }
 
-    var ids = _.map(ids, (id) => { return mongoose.Types.ObjectId(id); });
+    var ids = params.ids.map((id) => { return mongoose.Types.ObjectId(id); });
 		return this.find({ _id: { $in: ids } }).exec()
       .then((services) => {
-      	if(_.isEmpty(services)) return { id: service._id, lists: [], estimate_price: 0 };
-        var promises = _.map(services, (service) => {
-          console.log('service', service)
+      	if(_.isEmpty(services)) return { items: [], estimate_price: 0 };
+        var promises = services.map((service) => {
         	return Q.Promise((resolve, reject) => {
   	        service.getAncestors({ isRoot: false }, 'name price', (err, result) => {
   	        	if(err) return reject(err);
   	          result.push(_.pick(service, ['name', 'price']));
-  	          resolve({ id: service._id, lists: result, estimate_price: _.sum(result, 'price') });
+  	          resolve({ items: result, estimate_price: _.sum(result, 'price') });
   	        });
         	});
         });
-        return promises;
+        return Q.all(promises).then((result) => {
+          console.log('result', JSON.stringify(result, null, 2));
+          return { items: [], estimate_price: 0 };
+        });
       });
 	},
 
   add(data) {
+    if(!data.parent) return this.create(data);
     return this.findById(data.parent).exec().then((parent) => {
       if(!parent) throw new Error('Parent not found');
       var newService = _.pick(data, ['name', 'price'])
@@ -135,7 +102,20 @@ ServiceSchema.methods = {
       	resolve(result);
     	});
     });
-	}
+	},
+
+  getChildrenAsync(_params_ = {}) {
+    var params = _.merge({ fields: '_id name price isRoot mode description reference' }, _params_);
+    return Q.Promise((resolve, reject) => {
+      this.getChildrenTree(params, (err, result) => {
+        if(err) {
+          reject(err)
+        } else {
+          resolve(result);
+        }
+      });
+    })
+  }
 };
 
 ServiceSchema.plugin(tree, {
