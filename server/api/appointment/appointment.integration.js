@@ -5,7 +5,7 @@ var request = require('supertest');
 
 var newAppointment;
 
-describe('Appointment API:', function() {
+describe.skip('Appointment API:', function() {
 
   describe('GET /api/appointments', function() {
     var appointments;

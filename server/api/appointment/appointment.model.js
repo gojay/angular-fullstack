@@ -34,7 +34,12 @@ var AppointmentSchema = new Schema({
             ref: 'Service',
             required: true
         },
-        lists: [],
+        reference: {
+            type: Schema.Types.ObjectId,
+            ref: 'Service'
+        },
+        items: [],
+        step : [],
         estimate_price: Number
     },
     pickuptime: Date,

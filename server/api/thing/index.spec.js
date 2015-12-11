@@ -28,7 +28,7 @@ var thingIndex = proxyquire('./index.js', {
   './thing.controller': thingCtrlStub
 });
 
-describe('Thing API Router:', function() {
+describe.skip('Thing API Router:', function() {
 
   it('should return an express router instance', function() {
     thingIndex.should.equal(routerStub);

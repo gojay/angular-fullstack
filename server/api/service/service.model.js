@@ -17,7 +17,8 @@ var ServiceSchema = new Schema({
     default: 0
   },
   reference: Schema.Types.ObjectId,
-  isRoot: { type: Boolean, default: false }
+  isRoot: { type: Boolean, default: false },
+  active: { type: Boolean, default: true },
 });
 
 ServiceSchema.statics = {
@@ -57,29 +58,47 @@ ServiceSchema.statics = {
     });
   },
 
+  // @private
+  _getEstimatePrice(id) {
+    return this.findById(id).exec()
+      .then((service) => {
+        if(_.isEmpty(service)) return { items: [], estimate_price: 0 };
+        return service.getAncestorsAsync('name price')
+          .then((ancestors) => {
+            ancestors.push(_.pick(service, ['_id','name', 'price']));
+            return { items: ancestors, estimate_price: _.sum(ancestors, 'price') };
+          });
+      });
+  },
+
 	getEstimatePrice(params) {
-    if(_.isEmpty(params) || !params.ids) {
-      throw new Error('Can\'t estimated price!! fields ids is required!');
+    if(_.isEmpty(params) || !params.origin) {
+      throw new Error('Can\'t estimated price!!');
     }
 
-    var ids = params.ids.map((id) => { return mongoose.Types.ObjectId(id); });
-		return this.find({ _id: { $in: ids } }).exec()
-      .then((services) => {
-      	if(_.isEmpty(services)) return { items: [], estimate_price: 0 };
-        var promises = services.map((service) => {
-        	return Q.Promise((resolve, reject) => {
-  	        service.getAncestors({ isRoot: false }, 'name price', (err, result) => {
-  	        	if(err) return reject(err);
-  	          result.push(_.pick(service, ['name', 'price']));
-  	          resolve({ items: result, estimate_price: _.sum(result, 'price') });
-  	        });
-        	});
-        });
-        return Q.all(promises).then((result) => {
-          console.log('result', JSON.stringify(result, null, 2));
-          return { items: [], estimate_price: 0 };
-        });
-      });
+    var promises = [];
+
+    // get estimate price from reference first!!
+    if(params.reference) {
+      promises.push(this._getEstimatePrice(params.reference));
+    } else {
+      promises.push(Q.when({ items: [], estimate_price: 0 }));
+    }
+
+    // get estimate price from origin
+    promises.push(this._getEstimatePrice(params.origin));
+
+    return Q.all(promises).then((estimates) => {
+      var data = _.reduce(estimates, (obj, item, index) => {
+        Array.prototype.push.apply(obj.items, item.items);
+        obj.estimate_price += item.estimate_price;
+        return obj;
+      }, { items: [], estimate_price: 0 });
+      data.id = params.origin;
+      data.reference = params.reference;
+      data.step = _.pluck(data.items, 'name');
+      return data;
+    });
 	},
 
   add(data) {
@@ -115,6 +134,19 @@ ServiceSchema.methods = {
         }
       });
     })
+  },
+
+  getAncestorsAsync(fields) {
+    var select = fields || '_id name price isRoot mode description reference';
+    return Q.Promise((resolve, reject) => {
+      this.getAncestors({ isRoot: false }, 'name price', (err, result) => {
+        if(err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      });
+    });
   }
 };
 

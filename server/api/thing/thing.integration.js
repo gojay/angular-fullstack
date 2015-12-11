@@ -5,7 +5,7 @@ var request = require('supertest');
 
 var newThing;
 
-describe('Thing API:', function() {
+describe.skip('Thing API:', function() {
 
   describe('GET /api/things', function() {
     var things;
