@@ -26,7 +26,8 @@
     "angular-toastr": "~1.6.0",
     "angular-ui-select": "~0.13.2",
     "angular-ui-tree": "~2.11.0",
-    "ionic-letter-avatar": "*"
+    "ionic-letter-avatar": "*",
+    "angular-animate": "~1.4.8"
   },
   "devDependencies": {
     "angular-mocks": "~1.4.0"

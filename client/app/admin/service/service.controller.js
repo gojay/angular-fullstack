@@ -10,8 +10,9 @@
 
 			this.name = 'Our Services';
 			this.options = { edited: false, focused: false, detail: false, modes: [
-				{ id: 0, title: 'Direct' },
-				{ id: 1, title: 'Reference' }
+				{ id: 0, title: 'Column' },
+				{ id: 1, title: 'Tab' },
+				{ id: 2, title: 'Modal' }
 			] };
 
 			this._getOurService();

@@ -3,6 +3,15 @@
         margin-right: 8px;
     }
 
+    .description {
+        color: #aaa;
+        margin-bottom: 0px;
+        width: 350px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
     .angular-ui-tree-handle {
         background: #f8faff;
         border: 1px solid #dae2ea;

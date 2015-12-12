@@ -6,7 +6,7 @@
 			this.menus = [{
 				title: 'Dashboard',
 				sref: 'admin.dashboard'
-			},{
+			},/*{
 				title: 'Material',
 				sref: 'admin.material.index'
 			},{
@@ -18,7 +18,7 @@
 			},{
 				title: 'Customer',
 				sref: 'admin.customer.index'
-			},{
+			},*/{
 				title: 'Services',
 				sref: 'admin.service.index',
 				icon: 'fa fa-wrench fa-5x'

@@ -1,82 +1,115 @@
 <navbar></navbar>
 <div id="appointment" class="container">
-    <div class="stepwizard">
-        <div class="stepwizard-row icon setup-panel">
-            <div class="stepwizard-step" ng-click="vm.getServiceParent('all')">
-                <!-- <ionic-letter-avatar data="Services" shape="round" charcount="2"></ionic-letter-avatar> -->
-                <span class="fa-stack fa-4x">
-                  <i class="fa fa-circle fa-stack-2x" style="color:#2196F3"></i>
-                  <i class="fa fa-wrench fa-stack-1x fa-inverse" style="color:white"></i>
-                </span>
-                <!-- <p>Services</p> -->
-            </div>
-            <div class="stepwizard-step cursor" ng-repeat="service in vm.services" ng-click="vm.getServiceParent(service)">
-                <ionic-letter-avatar data="{{service.name}}" shape="round"></ionic-letter-avatar>
-                <p>{{service.name}}</p>
-            </div>
-        </div>
-    </div>
-
-    <h3 class="text-center">{{vm.title.header}}</h3>
-    <h5 class="text-center">{{vm.title.guide}}</h5>
-
-    <div class="text-center" ng-if="!vm.items.length && !vm.options.additionalService">
-        <i class="fa fa-circle-o-notch fa-spin"></i>
-        Loading...
-    </div>
-    <div class="media cursor" ng-repeat="item in vm.items" ng-click="vm.getServiceChildren(item)">
-        <div class="media-left media-bottom pull-left">
-            <ionic-letter-avatar data="{{item.name}}" shape="round"></ionic-letter-avatar>
-        </div>
-        <div class="media-body">
-            <h4 class="media-heading">{{item.name}}</h4>
-            <p ng-if="item.description">{{item.description}}</p>
-            <p ng-if="!item.description">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-        </div>
-    </div>
-
-    <div class="row margin-top-bottom-lg" ng-if="vm.options.additionalService && !vm.items.length">
-        <div class="col-sm-6">
-            <div class="list-group">
-                <div class="list-group-item" ng-repeat="summary in vm.model.summary">
-                    <h4 class="list-group-item-heading">{{summary.title}}</h4>
-                    <p class="list-group-item-text">{{summary.name}}</p>
+    <div class="slide-up" ng-hide="vm.config.appointment">
+        <div class="stepwizard">
+            <div class="stepwizard-row icon setup-panel">
+                <div class="stepwizard-step" ng-click="vm.getServiceParent('all')">
+                    <!-- <ionic-letter-avatar data="Services" shape="round" charcount="2"></ionic-letter-avatar> -->
+                    <!-- <p>Services</p> -->
+                    <span class="fa-stack fa-4x">
+                      <i class="fa fa-circle fa-stack-2x blue"></i>
+                      <i class="fa fa-wrench fa-stack-1x fa-inverse" style="color:white"></i>
+                    </span>
+                </div>
+                <div class="stepwizard-step cursor slide-left" ng-repeat="service in vm.services" ng-click="vm.getServiceParent(service)">
+                    <ionic-letter-avatar data="{{service.name}}" shape="round"></ionic-letter-avatar>
+                    <p>{{service.name}}</p>
                 </div>
             </div>
         </div>
-        <div class="col-sm-6">
-            <form class="form-horizontal">
-                <fieldset>
-                    <div class="row setup-content" id="step-0">
-                        <div class="col-sm-12">
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label" for="textinput">Price estimate</label>
-                                <div class="col-sm-8">
-                                    <h3 class="price">
-                                        <span ng-if="vm.options.calculating">calculating...</span>
-                                        <span ng-if="!vm.options.calculating">{{ vm.model.service.estimate_price | currency: 'Rp.' }}</span>
-                                    </h3>
-                                </div>
-                            </div>
-                            <!-- Text additional -->
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label" for="textinput">Additional info</label>
-                                <div class="col-sm-8">
-                                    <div class="input-group">
-                                        <textarea rows="3" placeholder="Additional info" class="form-control" ng-model="vm.model.service.additional" required></textarea>
-                                        <span class="input-group-addon bg-success"><i class="fa fa-comment fa-lg text-white"></i></span>
+
+        <h3 class="text-center">{{vm.title.header}}</h3>
+        <h5 class="text-center">{{vm.title.guide}}</h5>
+
+        <div class="text-center margin-top-bottom-lg" ng-if="!vm.items.length && vm.config.loading">
+            <i class="fa fa-circle-o-notch fa-spin"></i>
+            Loading...
+        </div>
+
+        <div class="row margin-top-bottom-lg">
+            <div class="item-service" ng-repeat="item in vm.items" ng-class="vm.getColumnClass(vm.items)" ng-click="vm.getServiceChildren(item)" ng-if="vm.config.mode == 0">
+                <div class="center">
+                    <ionic-letter-avatar data="{{item.name}}" shape="round" ng-if="!item.picture"></ionic-letter-avatar>
+                    <img ng-src="{{item.picture}}" ng-if="item.picture">
+                    <h4>{{item.name}}</h4>
+                    <p class="col-md-8 col-center">{{item.description}}</p>
+                </div>
+            </div>
+            <div class="col-md-12" ng-if="vm.config.mode == 1">
+                <div class="tabbable-panel">
+                    <div class="tabbable-line">
+                        <tabset>
+                            <tab ng-repeat="tab in vm.items" heading="{{tab.name}}">
+                                <div class="item-service" ng-repeat="item in tab.children" ng-class="vm.getColumnClass(tab.children)" ng-click="vm.getServiceChildren(item, tab)" ng-if="vm.config.mode == 1">
+                                    <div class="center" ng-if="item.name != 'General'">
+                                        <ionic-letter-avatar data="{{item.name}}" shape="round" width="50" height="50" ng-if="!item.picture"></ionic-letter-avatar>
+                                        <img ng-src="{{item.picture}}" ng-if="item.picture">
+                                        <h4 ng-class="{'margin-top-zero': item.picture}">{{item.name}}</h4>
+                                        <p class="col-md-8 col-center">{{item.description}}</p>
+                                    </div>
+                                    <div class="center" ng-if="item.name == 'General'">
+                                        <h4 class="col-md-8 col-center">{{item.description}}</h4>
                                     </div>
                                 </div>
-                            </div>
-                            <button class="btn btn-primary btn-block" ng-click="vm.goTo('step1')" ng-disabled="!vm.model.service.estimate_price" type="button">
-                                Next Step <i class="fa fa-angle-double-right"></i>
-                            </button>
-                        </div>
+                            </tab>
+                        </tabset>
                     </div>
-                </fieldset>
-            </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="row margin-top-bottom-lg" ng-if="!vm.items.length && vm.model.service && !vm.config.loading">
+            <div class="col-sm-6">
+                <div class="list-group">
+                    <div class="list-group-item" ng-repeat="(key, value) in vm.config.summary">
+                        <h4 class="list-group-item-heading">{{key}}</h4>
+                        <p class="list-group-item-text">{{value}}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <form class="form-horizontal">
+                    <fieldset>
+                        <div class="row setup-content" id="step-0">
+                            <div class="col-sm-12">
+                                <!-- Estimate price -->
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="textinput">Price estimate</label>
+                                    <div class="col-sm-8">
+                                        <h3 class="price">
+                                            <span ng-if="vm.config.calculating">calculating...</span>
+                                            <span ng-if="!vm.config.calculating">{{ vm.model.service.estimate_price | currency: 'Rp.' }}</span>
+                                        </h3>
+                                    </div>
+                                </div>
+                                <!-- Text additional -->
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="textinput">Additional info</label>
+                                    <div class="col-sm-8">
+                                        <div class="input-group">
+                                            <textarea rows="3" placeholder="Additional info" class="form-control" ng-model="vm.model.service.additional" required></textarea>
+                                            <span class="input-group-addon bg-success"><i class="fa fa-comment fa-lg text-white"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary btn-block" ng-click="vm.goTo('step1')" ng-disabled="!vm.model.service.estimate_price" type="button">
+                                    Next Step <i class="fa fa-angle-double-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
         </div>
     </div>
-    <div ui-view ng-if="!vm.options.additionalService"></div>
+    <div class="slide-down" ui-view ng-if="vm.config.appointment"></div>
 </div>
 <footer></footer>
+
+<script type="text/ng-template" id="select-screen-size.html">
+    <ul class="list-unstyled">
+        <li ng-repeat="list in model">
+            <a class="btn btn-link" ng-click="$close(list)">{{list.name}}</a>
+        </li>
+    </ul>
+</script>

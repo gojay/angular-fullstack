@@ -21,12 +21,17 @@ var ServiceSchema = new Schema({
   active: { type: Boolean, default: true },
 });
 
+ServiceSchema.path('name')
+  .set(function (name) {
+    return _.capitalize(name);
+  });
+
 ServiceSchema.statics = {
   getAll() {
-    return this.find({ isRoot: true }).exec().then((roots) => {
+    return this.find({ isRoot: true }).sort({ _id: -1 }).exec().then((roots) => {
       if(_.isEmpty(roots)) return [];
       var promises = roots.map((root) => {
-        return root.getChildrenAsync().then((result) => {
+        return root.getChildrenAsync({ fields: '_id name picture isRoot mode description reference' }).then((result) => {
           var obj = root.toObject();
           obj.children = result;
           return obj;
@@ -52,9 +57,11 @@ ServiceSchema.statics = {
       filters._id = mongoose.Types.ObjectId(reference);
     }
 
-    return this.findOne(filters).exec().then((root) => {
-      if(!root) return [];
-      return root.getChildrenAsync();
+    return Q.delay(1000).then(() => {
+      return this.findOne(filters).exec().then((root) => {
+        if(!root) return [];
+        return root.getChildrenAsync();
+      });
     });
   },
 
@@ -124,7 +131,7 @@ ServiceSchema.methods = {
 	},
 
   getChildrenAsync(_params_ = {}) {
-    var params = _.merge({ fields: '_id name price isRoot mode description reference' }, _params_);
+    var params = _.merge({ fields: '_id name price picture isRoot mode description reference' }, _params_);
     return Q.Promise((resolve, reject) => {
       this.getChildrenTree(params, (err, result) => {
         if(err) {

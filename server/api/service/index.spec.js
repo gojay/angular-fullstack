@@ -93,7 +93,6 @@ describe.skip('Service API Router:', function() {
     });
 
   });
-
 });
 
 import _ from 'lodash';
@@ -106,7 +105,7 @@ const PRICES = [10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000];
 describe.only('Service model', function() {
   this.timeout(600000);
 
-  it.skip('should seed services', (done) => {
+  it('should seed services', (done) => {
     Seed.service().then(() => {
       console.log('seed done!');
       done();
@@ -116,7 +115,7 @@ describe.only('Service model', function() {
     });
   });
 
-  it.skip('should get all', (done) => {
+  it('should get all', (done) => {
     Service.getAll().then((result) => {
       console.log('ALL', JSON.stringify(result, null, 2));
       done();
@@ -139,7 +138,7 @@ describe.only('Service model', function() {
     });
   });
 
-  it('should get estimate price', (done) => {
+  it.skip('should get estimate price', (done) => {
     Service.findById('566a85bfa4ed33e8022d6e9a').exec()
       .then((samsung) => {
         return samsung.getChildrenAsync();
@@ -155,7 +154,7 @@ describe.only('Service model', function() {
       });
   });
 
-  it('should get estimate price from service reference', (done) => {
+  it.skip('should get estimate price from service reference', (done) => {
     Q.all([
       Service.findOne({ name: /front/i }).select('_id').exec(),
       Service.findById('566a85bfa4ed33e8022d6e9a').exec()
@@ -205,4 +204,4 @@ describe.only('Service model', function() {
   // after((done) => {
   //   Service.remove({ name: { $regex: 'xiaomi', $options: 'i' } }, done);
   // });
-})
+});

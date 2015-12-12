@@ -6,6 +6,7 @@
 	  'ngResource',
 	  'ngSanitize',
 	  'ngMessages',
+  	'ngAnimate',
 	  'ui.router',
 	  'ui.bootstrap',
 	  'ui.select',

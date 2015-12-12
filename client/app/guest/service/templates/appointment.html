@@ -1,7 +1,13 @@
-<h1>Appointment</h1>
+<h1>Booking Appointment</h1>
 <!-- Step Wizard -->
 <div class="stepwizard">
     <div class="stepwizard-row setup-panel">
+        <div class="stepwizard-step">
+            <a ng-click="vm.goTo('step0')" class="btn btn-circle" ng-class="{false:'btn-default', true:'btn-primary'}[vm.isActive('step0')]">
+                <i class="fa fa-wrench"></i>
+            </a>
+            <p>Service</p>
+        </div>
         <div class="stepwizard-step">
             <a ui-sref="service.appointment.step1" type="button" class="btn btn-circle" ng-class="{false:'btn-default', true:'btn-primary'}[vm.isActive('step1')]">1</a>
             <p>Step 1</p>

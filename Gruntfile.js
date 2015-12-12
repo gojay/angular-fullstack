@@ -665,14 +665,31 @@ module.exports = function (grunt) {
     grunt.task.run(['serve']);
   });
 
-  grunt.registerTask('test', function(target, option) {
+  grunt.registerTask('test', function (target, option) {
     if (target === 'server') {
-      return grunt.task.run([
-        'env:all',
-        'env:test',
-        'mochaTest:unit',
-        'mochaTest:integration'
-      ]);
+
+      if(option == 'unit') {
+        return grunt.task.run([
+          'env:all',
+          'env:test',
+          'mochaTest:unit'
+        ]);
+      } 
+      else if(option == 'integration') {
+        return grunt.task.run([
+          'env:all',
+          'env:test',
+          'mochaTest:integration'
+        ]);
+      } 
+      else {
+        return grunt.task.run([
+          'env:all',
+          'env:test',
+          'mochaTest:unit',
+          'mochaTest:integration'
+        ]);
+      }
     }
 
     else if (target === 'client') {

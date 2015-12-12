@@ -17,9 +17,9 @@
             </div>
         </div>
         <!-- Text City & ZipCode -->
-        <div class="form-group" ng-class="vm.getFormClass(form.city)">
+        <div class="form-group">
             <label class="col-sm-2 control-label" for="textinput">City</label>
-            <div class="col-sm-4">
+            <div class="col-sm-4" ng-class="vm.getFormClass(form.city)">
                 <div class="input-group">
                     <input type="text" placeholder="City" class="form-control" ng-model="vm.model._address.city" name="city" required>
                     <span class="input-group-addon bg-success"><i class="fa fa-map-marker fa-lg text-white"></i></span>
@@ -29,7 +29,7 @@
                 </div>
             </div>
             <label class="col-sm-2 control-label" for="textinput">ZipCode</label>
-            <div class="col-sm-4">
+            <div class="col-sm-4" ng-class="vm.getFormClass(form.zipcode)">
                 <div class="input-group">
                     <input id="postcode" type="text" placeholder="Zip Code" class="form-control" ng-model="vm.model._address.zipcode" name="zipcode" required>
                     <span class="input-group-addon bg-success"><i class="fa fa-map-marker fa-lg text-white"></i></span>
@@ -45,10 +45,10 @@
           <div class="col-sm-10">
               <div class="input-group">
                   <input type="text" class="form-control" ng-model='vm.model.pickuptime' name="pickuptime" required
-                  is-open="vm.options.datePicker.opened" 
-                  datepicker-popup="{{vm.options.datePicker.format}}"
-                  datepicker-options="vm.options.datePicker.options", 
-                  min-date="vm.options.datePicker.minDate"
+                  is-open="vm.config.datePicker.opened" 
+                  datepicker-popup="{{vm.config.datePicker.format}}"
+                  datepicker-options="vm.config.datePicker.options", 
+                  min-date="vm.config.datePicker.minDate"
                   date-disabled="vm.disabledDP(date, mode)"
                   ng-click="vm.openDP($event)">
                   <span class="input-group-btn">
@@ -67,7 +67,7 @@
           <label class="col-sm-2 control-label" for="textinput">Additional info</label>
           <div class="col-sm-10">
               <div class="input-group">
-                  <textarea rows="6" placeholder="Additional info" class="form-control" ng-model="vm.model._address.additional"></textarea>
+                  <textarea name="additional_info" rows="6" placeholder="Additional info" class="form-control" ng-model="vm.model._address.additional"></textarea>
                   <span class="input-group-addon bg-success"><i class="fa fa-comment fa-lg text-white"></i></span>
               </div>
           </div>

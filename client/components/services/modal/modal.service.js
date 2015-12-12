@@ -12,6 +12,7 @@ function Modal( $rootScope, $modal, logger ) {
       ok: confirmOk
     },
     resource: resource,
+    list: list,
     thumb: thumb
   };
   return modal;
@@ -184,6 +185,42 @@ function Modal( $rootScope, $modal, logger ) {
       }, function(event) {
         cbCancel.apply(event, args);
       });
+
+      return resolveModal;
+    }
+  }
+
+  function list(options, cbClose, cbCancel) {
+    cbClose = cbClose || angular.noop;
+    cbCancel = cbCancel || angular.noop;
+
+    return function() {
+      var args = Array.prototype.slice.call(arguments),
+        title = args.shift();
+
+      var resolveModal = _openModal({
+        modal: {
+          size: options.size,
+          resolve: {
+            model: function () {
+              return options.model;
+            }
+          },
+          controller: ['$scope', 'model', function ($scope, model) {
+            $scope.model = model;
+            console.log('list:model', model);
+          }],
+          template: '<div class="modal-header">' +
+              '<button type="button" ng-click="$dismiss()" class="close"><i class="fa fa-times"></i></button>' +
+              '<h3 class="modal-title text-center">'+ title +'</h3>' +
+          '</div>' +
+          '<div class="modal-body">' +
+            '<div ng-include="\''+ options.templateUrl +'\'"></div>' +
+          '</div>'
+        }
+      }, options.windowClass);
+
+      resolveModal.result.then(cbClose, cbCancel);
 
       return resolveModal;
     }

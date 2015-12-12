@@ -1,7 +1,131 @@
+$blue-color: #2196F3;
+$blue-light-color: #BBDEFB;
+
+/***
+Bootstrap Line Tabs by @keenthemes
+A component of Metronic Theme - #1 Selling Bootstrap 3 Admin Theme in Themeforest: http://j.mp/metronictheme
+Licensed under MIT
+***/
+
+/* Tabs panel */
+.tabbable-panel {
+  // border:1px solid #eee;
+  padding: 10px;
+}
+
+/* Default mode */
+.tabbable-line .nav-tabs {
+  border: none;
+  margin: 0px;
+  text-align: center;
+}
+.tabbable-line .nav-tabs > li {
+  margin-right: 2em;
+  float: none;
+  display: inline-block;
+}
+.tabbable-line .nav-tabs > li > a {
+  border: 0;
+  margin-right: 0;
+  color: #737373;
+  font-size: 1.5em;
+}
+.tabbable-line .nav-tabs > li > a > i {
+  color: #a6a6a6;
+}
+.tabbable-line .nav-tabs > li.open, .tabbable-line .nav-tabs > li:hover {
+  border-bottom: 4px solid $blue-light-color;
+}
+.tabbable-line .nav-tabs > li.open > a, .tabbable-line .nav-tabs > li:hover > a {
+  border: 0;
+  background: none !important;
+  color: #333333;
+}
+.tabbable-line .nav-tabs > li.open > a > i, .tabbable-line .nav-tabs > li:hover > a > i {
+  color: #a6a6a6;
+}
+.tabbable-line .nav-tabs > li.open .dropdown-menu, .tabbable-line .nav-tabs > li:hover .dropdown-menu {
+  margin-top: 0px;
+}
+.tabbable-line .nav-tabs > li.active {
+  border-bottom: 4px solid $blue-color;
+  position: relative;
+}
+.tabbable-line .nav-tabs > li.active > a {
+  border: 0;
+  color: #333333;
+}
+.tabbable-line .nav-tabs > li.active > a > i {
+  color: #404040;
+}
+.tabbable-line .tab-content {
+  // margin-top: -3px;
+  background-color: #fff;
+  border: 0;
+  // border-top: 1px solid #eee;
+  // padding: 15px 0;
+}
+.portlet .tabbable-line .tab-content {
+  padding-bottom: 0;
+}
+
+/**
+ * Modal Service
+ */
+
+.modal-service {
+  .modal-content {
+    border-radius: 0;
+  }
+  
+  .modal-header {
+    border-bottom: none;
+  }
+
+  .modal-body {
+    padding: 0;
+    ul {
+      margin-bottom: 0;
+      li {
+        border-bottom: 1px solid #e7e7e7;
+        text-align: center;
+        a {
+          font-size: 1.5em;
+          color: #333333;
+        }
+        a:hover {
+          text-decoration: none;
+        }
+      }
+    }
+  }
+}
+
 #appointment {
+
+    .blue {
+        color: $blue-color;
+    }
 
     .cursor {
         cursor: pointer;
+    }
+
+    .item-service {
+        border: 1px solid #e7e7e7;
+        padding: 15px;
+        height: 250px;
+        cursor: pointer;
+        text-align: center;
+        .center {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100px;
+            margin: auto;
+        }
     }
     
     .stepwizard {
@@ -84,7 +208,6 @@
     h3.price {
         margin-top: 0;
     }
-
 }
 
 #invoice {

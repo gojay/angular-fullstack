@@ -2,13 +2,14 @@
 	'use strict';
 
 	class ServiceCtrl {
-		constructor($scope, $state, $q, $timeout, Auth, OurService, Appointment, logger) {
+		constructor($scope, $state, $q, $timeout, Auth, OurService, Appointment, logger, Modal, CONFIG) {
 			this.$state = $state;
 			this.$q = $q;
 			this.$timeout = $timeout;
 			this.OurService = OurService;
 			this.Appointment = Appointment;
 			this.logger = logger;
+			this.Modal = Modal;
 
 			this.title = {};
 
@@ -20,29 +21,12 @@
 
 			this.isCustomer = Auth.isCustomer;
 
-			this.options = { 
-				title: {
-					'repairs': {
-						1: {
-							header: 'Device Repair',
-							guide : 'Select your device',
-						},
-						3: {
-							template: true,
-							header: '<%= name %> Repair',
-							guide : 'Select your <%= name %>',
-							summary: 'Device'
-						},
-						4: {
-							summary: 'Brand'
-						},
-						5: {
-							summary: 'Model'
-						}
-					}
-				},
-				additionalService: false, 
-				addNewAddress: false,
+			this.config = { 
+				title: CONFIG.service, 
+				mode: 0, // column, tab, modal
+				summary: {},
+				appointment: false, 
+				loading: false, 
 				calculating: false, 
 				submitted: false,
 				datePicker: {
@@ -67,12 +51,33 @@
 				this._getDisabledDP();
 			});
 
-			var unwatch = $scope.$watch(() => this.services, this._getTitle(), true);
-			$scope.$on('$destroy', unwatch);
+			var unWatchServices = $scope.$watch(() => this.services, this._getTitle(), true);
+			$scope.$on('$destroy', unWatchServices);
+		}
+
+		getColumnClass(items) {
+			if(!_.isEmpty(items)) {
+				if(items.length == 1) {
+					return 'col-md-12';
+				} else if(items.length == 2) {
+					return 'col-md-6';
+				} else if(items.length == 3) {
+					return 'col-md-4';
+				} else {
+					return 'col-md-3';
+				}
+			} else {
+				return 'col-md-3';
+			}
 		}
 
 		_getTitle() {
 			return (nv) => {
+
+				this.logger.log('services', nv);
+
+				// watch services
+				// -------------------
 				if(_.isEmpty(nv)) {
 					this.title = {
 						header: 'Our Services',
@@ -81,8 +86,34 @@
 					return;
 				}
 
-				var service = _.first(nv).name.toLowerCase();
-				var options = this.options.title[service];
+				var item = _.last(nv);
+				var service_type = _.first(nv).name.toLowerCase();
+				if(service_type == 'repairs') {
+					switch(nv.length) {
+						case 1:
+							this.title.header = 'Device Repair';
+							this.title.guide = 'Select your device';
+							break;
+						case 2:
+							this.title.header = `${item.name} Repair`;
+							this.title.guide = `Select your ${item.name.toLowerCase()}`;
+							this.config.summary['Device'] = item.name;
+							break;
+						case 3:
+							this.title.header = 'Select Device Issue';
+							this.title.guide = `${item.parent} ${item.name}`;
+							this.config.summary['Brand'] = item.parent;
+							this.config.summary['Model'] = item.name;
+							break;
+						case 4:
+							this.config.summary['Issue'] = item.name;
+							break;
+					}
+				}
+
+
+				/*var service = _.first(nv).name.toLowerCase();
+				var options = this.config.title[service];
 				if(!options) return;
 
 				var item = _.last(nv);
@@ -91,32 +122,36 @@
 
 				if(config.summary) {
 					item.summary = config.summary;
-				} else if(/repairs/i.test(service) && /inch/i.test(item.name)) {
-					item.summary = 'Model';
-				}
+				} 
+				// else if(/repairs/i.test(service) && /inch/i.test(item.name)) {
+				// 	item.summary = 'Model';
+				// }
 
 				if(config.template) {
 					var compiledH = _.template(config.header);
 					var compiledG = _.template(config.guide);
 					this.title.header = compiledH({ name: item.name });
 					this.title.guide = compiledG({ name: item.name });
+				} else if(config.custom) {
+					this.title.header = config.header;
+					this.title.guide = this.services.filter((s) => {
+						return s.summary && config.custom.indexOf(s.summary);
+					}).map((s) => { return s.name; }).join(' ');
 				} else {
 					angular.extend(this.title, _.pick(config, ['header', 'guide']));
-				}
+				}*/
 			}
 		}
 
 		_getServiceSummary() {
 			if(_.isEmpty(this.services)) return;
 
-			this.options.additionalService = true;
 			this.title.header = 'Service Summary';
 			this.title.guide = null;
 
 			this._calcServiceEstimatePrice();
-			this.$timeout(() => {
-				this.logger.log('summary', angular.copy(this.services));
 
+			/*this.$timeout(() => {
 				this.model.summary = this.services.filter((s) => {
 					return _.has(s, 'summary');
 				}).reduce((arr, item) => {
@@ -127,71 +162,81 @@
 					return arr;
 				}, []);
 
-				// var issue = _.last(this.services);
-				// this.model.summary.push({
-				// 	title: 'Issue',
-				// 	name: issue.name
-				// });
+				if(/repairs/i.test(this.services[0].name)) {
+					var issue = _.last(this.services);
+					this.model.summary.push({
+						title: 'Issue',
+						name: issue.name
+					});
+				}
 				
 				this.logger.log('summary', this.model.summary);
-			});
+			});*/
 		}
 
 		_calcServiceEstimatePrice() {
 			if(_.isEmpty(this.services)) return;
 
-			var params = { ids: [] };
-			// get original service id
-			var originService = _.find(this.services, (s) => {
+			var params = {};
+			// get last service
+			params.origin = _.last(this.services)._id;
+			// get reference service id
+			var referenceService = _.find(this.services, (s) => {
 				return _.has(s, 'reference');
 			});
-			if(originService) {
-				params.ids.push(originService._id)
+			if(referenceService) {
+				params.reference = referenceService._id;
 			}
-			// get last service
-			var serviceId = _.last(this.services)._id;
-			params.ids.push(serviceId);
 
-			this.logger.log('estimate_price', params);
+			// this.logger.log('estimate_price', params);
 
-			this.options.calculating = true;
+			this.config.calculating = true;
 			return this.OurService.calculate(params).$promise.then((result) => {
-				this.logger.log('calculated', result);
-				// angular.extend(this.model.service, result);
+				angular.extend(this.model.service, result);
+				// this.logger.log('service', this.model.service);
 				// this.model.price = result.estimate_price;
 			}).catch((err) => {
-				this.logger.error('Failed', 'calculating services', err);
+				this.logger.error('Failed', 'calculating estimate price', err);
 			}).finally(() => {
-				this.options.calculating = false;
+				this.config.calculating = false;
 			})
 		}
 
-		_getOurService(params) {
+		_getOurService(item) {
 			var query = { type: 'children' };
-			if(params) {
-				angular.extend(query, params);
-			}
+			if(item) angular.extend(query, { reference: item.reference });
+			this.config.loading = true;
 			this.OurService.query(query).$promise.then((data) => {
-				if(!params) {
+				if(!item) {
 					angular.extend(this.all, data);
+				} 
+				// reference, show in tabs
+				else {
+					var seviceitem = _.last(this.services);
+					seviceitem.mode = 1;
+					seviceitem.children = data;
+					this.config.mode = 1;
 				}
 				this.items = data;
 			}).catch((err) => {
 				this.logger.error('Failed', 'load services', err);
+			}).finally(() => {
+				this.config.loading = false;
 			});
 		}
 
-		getServiceChildren(item) {
+		_addToService(item, parent) {
 			if(!_.find(this.services, '_id', item._id)) {
-				this.services.push(_.pick(item, ['_id', 'name', 'children', 'reference']));
+				var next = _.pick(item, ['_id', 'name', 'mode', 'children', 'reference']);
+				if(parent) next.parent = parent.name;
+				this.services.push(next);
 			}
 			this.items = item.children;
 			// end
 			if(_.isEmpty(this.items)) {
-				this.logger.log('get:service:childrenLend', item);
 				// get reference services
 				if(item.reference) {
-					this._getOurService({ reference: item.reference });
+					this._getOurService(item);
 				} 
 				// get service summary
 				else {
@@ -199,14 +244,36 @@
 				}
 			}
 		}
-		getServiceParent(item) {
-			this.options.additionalService = true;
 
+		getServiceChildren(item, parent) {
+			// this.logger.log('children', item, parent);
+
+			// show in modal
+			if(item.mode == 2) {
+				return this.Modal.list({
+					templateUrl: 'select-screen-size.html',
+					model: item.children,
+					windowClass: 'modal-service'
+				}, (selected) => {
+	        // this.logger.log('size', selected);
+					this._addToService(selected, parent);
+		    })(['Select screen size']);
+			}
+
+			// set view mode
+			this.config.mode = item.mode;
+
+			this._addToService(item, parent);
+		}
+		getServiceParent(item) {
 			if(item === 'all') {
 				this.items = this.all;
 				this.services = [];
 				return;
 			}
+
+			// set view mode
+			this.config.mode = item.mode;
 
 			if(_.last(this.services)._id == item._id) return;
 
@@ -225,44 +292,48 @@
 			return step <= currentStep;
 		}
 		goTo(nextStep) {
-			this.options.additionalService = false;
-			this.$state.go(`service.appointment.${nextStep}`);
+			if(nextStep == 'step0') {
+				this.config.appointment = false;
+			} else {
+				this.config.appointment = true;
+				this.$state.go(`service.appointment.${nextStep}`);
+			}
 		}
 
 		/* Appointment Form */
 
 		getFormClass(field) {
-			if(field.$dirty || this.options.submitted) return field.$valid ? 'has-success' : 'has-error' ;
+			if(field.$dirty || this.config.submitted) return field.$valid ? 'has-success' : 'has-error' ;
 			return null;
 		}
 		isInteracted(field) {
-			return this.options.submitted || field.$dirty;
+			return this.config.submitted || field.$dirty;
 		}
 		nextStep(form, nextStep) {
-			this.options.submitted = true;
+			this.config.submitted = true;
 			this.logger.log('next:step = %s', nextStep, form);
 			if(form.$invalid) return;
-			this.options.submitted = false;
+			this.config.submitted = false;
 			this.$state.go(`service.appointment.${nextStep}`);
 		}
 
 		/* Appointment Step 2 : Date Picker */
 
     _getDisabledDP() {
-        if (_.isEmpty(this.model.user)) return;
-        if (!_.isEmpty(this.options.datePicker.disabled)) return;
+        if (_.isEmpty(this.model.user._id)) return;
+        if (!_.isEmpty(this.config.datePicker.disabled)) return;
 
         this.Appointment.getDisabledPickup().$promise.then((results) => {
-            this.options.datePicker.disabled = results;
-            // return this.options.datePicker.disabled;
+            this.config.datePicker.disabled = results;
+            // return this.config.datePicker.disabled;
         }).catch((error) => {
             this.logger.log('_getDisabledDP:error', error);
         });
     }
-    	openDP($event) {
+  	openDP($event) {
         $event.preventDefault();
         $event.stopPropagation();
-        this.options.datePicker.opened = true;
+        this.config.datePicker.opened = true;
         if (!this.model.pickuptime) {
             this.model.pickuptime = moment().format('DD-MMMM-YYYY');
         }
@@ -272,7 +343,7 @@
     }
     disabledDP(date, mode) {
         var d = moment(date).format('DD-MM-YYYY');
-        return this.options.datePicker.disabled.indexOf(d) > -1;
+        return this.config.datePicker.disabled.indexOf(d) > -1;
     }
 
 		/* Appointment Step 3 */
@@ -282,7 +353,7 @@
 		}
 
 		getOrderSummary() {
-			return _.filter(this.model.service.lists, (service) => {
+			return _.filter(this.model.service.items, (service) => {
 				return service.price > 0;
 			});
 		}
@@ -292,7 +363,7 @@
 		}
 	}
 
-	ServiceCtrl.$inject = ['$scope', '$state', '$q', '$timeout', 'Auth', 'OurService', 'Appointment', 'logger'];
+	ServiceCtrl.$inject = ['$scope', '$state', '$q', '$timeout', 'Auth', 'OurService', 'Appointment', 'logger', 'Modal', 'CONFIG'];
 
 	angular.module('app.guest')
 	  .controller('ServiceCtrl', ServiceCtrl);
