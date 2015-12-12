@@ -22,7 +22,7 @@
 			this.isCustomer = Auth.isCustomer;
 
 			this.config = { 
-				title: CONFIG.service, 
+				// title: CONFIG.service, 
 				mode: 0, // column, tab, modal
 				summary: {},
 				appointment: false, 
@@ -74,8 +74,6 @@
 		_getTitle() {
 			return (nv) => {
 
-				this.logger.log('services', nv);
-
 				// watch services
 				// -------------------
 				if(_.isEmpty(nv)) {
@@ -110,36 +108,6 @@
 							break;
 					}
 				}
-
-
-				/*var service = _.first(nv).name.toLowerCase();
-				var options = this.config.title[service];
-				if(!options) return;
-
-				var item = _.last(nv);
-				var config  = options[this.services.length];
-				if(!config) return;
-
-				if(config.summary) {
-					item.summary = config.summary;
-				} 
-				// else if(/repairs/i.test(service) && /inch/i.test(item.name)) {
-				// 	item.summary = 'Model';
-				// }
-
-				if(config.template) {
-					var compiledH = _.template(config.header);
-					var compiledG = _.template(config.guide);
-					this.title.header = compiledH({ name: item.name });
-					this.title.guide = compiledG({ name: item.name });
-				} else if(config.custom) {
-					this.title.header = config.header;
-					this.title.guide = this.services.filter((s) => {
-						return s.summary && config.custom.indexOf(s.summary);
-					}).map((s) => { return s.name; }).join(' ');
-				} else {
-					angular.extend(this.title, _.pick(config, ['header', 'guide']));
-				}*/
 			}
 		}
 
@@ -150,28 +118,6 @@
 			this.title.guide = null;
 
 			this._calcServiceEstimatePrice();
-
-			/*this.$timeout(() => {
-				this.model.summary = this.services.filter((s) => {
-					return _.has(s, 'summary');
-				}).reduce((arr, item) => {
-					arr.push({
-						title: item.summary,
-						name: item.name
-					});
-					return arr;
-				}, []);
-
-				if(/repairs/i.test(this.services[0].name)) {
-					var issue = _.last(this.services);
-					this.model.summary.push({
-						title: 'Issue',
-						name: issue.name
-					});
-				}
-				
-				this.logger.log('summary', this.model.summary);
-			});*/
 		}
 
 		_calcServiceEstimatePrice() {
@@ -246,8 +192,6 @@
 		}
 
 		getServiceChildren(item, parent) {
-			// this.logger.log('children', item, parent);
-
 			// show in modal
 			if(item.mode == 2) {
 				return this.Modal.list({
@@ -311,7 +255,6 @@
 		}
 		nextStep(form, nextStep) {
 			this.config.submitted = true;
-			this.logger.log('next:step = %s', nextStep, form);
 			if(form.$invalid) return;
 			this.config.submitted = false;
 			this.$state.go(`service.appointment.${nextStep}`);
