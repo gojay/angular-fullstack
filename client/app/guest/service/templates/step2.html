@@ -2,7 +2,7 @@
 <form class="form-horizontal" name="form" ng-submit="vm.nextStep(form, 'step3')" novalidate>
   <fieldset>
     <div class="row setup-content" id="step-2">
-      <div class="col-sm-12">
+      <div class="col-sm-offset-2 col-sm-8 col-sm-offset-2">
         <!-- Text Street -->
         <div class="form-group" ng-class="vm.getFormClass(form.street)">
             <label class="col-sm-2 control-label" for="textinput">Street</label>
@@ -72,12 +72,13 @@
               </div>
           </div>
         </div>
-        <!-- <button class="btn btn-primary nextBtn col-xs-3 pull-right" ng-click="vm.goTo('step3')" type="button">
-          Next Step <i class="fa fa-angle-double-right"></i> 
-        </button> -->
-        <button class="btn btn-primary nextBtn col-xs-3 pull-right" type="submit">
-          Next Step <i class="fa fa-angle-double-right"></i> 
-        </button>
+        <div class="form-group">
+          <div class="col-sm-offset-2 col-sm-10">
+            <button class="btn btn-primary btn-block" type="submit">
+              Next Step <i class="fa fa-angle-double-right"></i> 
+            </button>
+          </div>
+        </div>
     </div>
     </div>
   </fieldset>

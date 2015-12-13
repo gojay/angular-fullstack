@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('app.services')
+angular.module('app.layout')
   .factory('Modal', Modal);
 
 Modal.$inject = ['$rootScope', '$modal', 'logger'];

@@ -17,6 +17,7 @@ var services = [
           {
             name: 'smartphone',
             price: 0,
+            mode: 1,
             children: [
               {
                 name: 'apple',
@@ -228,6 +229,7 @@ var services = [
           {
             name: 'tablet',
             price: 0,
+            mode: 1,
             children: [
               {
                 name: 'apple',
@@ -254,6 +256,7 @@ var services = [
           {
             name: 'desktop',
             price: 0,
+            mode: 1,
             children: [
               {
                 name: 'apple',
@@ -276,6 +279,7 @@ var services = [
           {
             name: 'laptop',
             price: 0,
+            mode: 1,
             children: [
               {
                 name: 'apple',
@@ -321,6 +325,7 @@ var services = [
           {
             name: 'software',
             price: 0,
+            mode: 1,
             children: [
               {
                 name: 'Mobile',
@@ -364,6 +369,7 @@ var services = [
       {
         name: 'hardware',
         price: 0,
+        mode: 1,
         children: [
           {
             name: 'Front glass replacement',
@@ -397,7 +403,8 @@ var services = [
       },
       {
         name: 'software',
-        price: PRICES2[Math.floor(Math.random()*PRICES2.length)]
+        price: PRICES2[Math.floor(Math.random()*PRICES2.length)],
+        mode: 1
       }
     ]
   }

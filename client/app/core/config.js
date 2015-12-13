@@ -2,27 +2,6 @@
 	'use strict';
 
 	angular.module('app.core')
-		.constant('CONFIG', {
-			service: {
-				'repairs': {
-					1: {
-						header: 'Device Repair',
-						guide : 'Select your device',
-					},
-					2: {
-						template: true,
-						header: '<%= name %> Repair',
-						guide : 'Select your <%= name %>',
-						summary: 'Device'
-					},
-					3: {
-						summary: 'Brand',
-						custom: ['Brand', 'Model'],
-						header: 'Select Device Issue'
-					}
-				}
-			}
-		})
 		.config(($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) => {
 	    $urlRouterProvider
 	      .otherwise('/');

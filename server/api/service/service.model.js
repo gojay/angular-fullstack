@@ -57,12 +57,12 @@ ServiceSchema.statics = {
       filters._id = mongoose.Types.ObjectId(reference);
     }
 
-    return Q.delay(1000).then(() => {
+    // return Q.delay(1000).then(() => {
       return this.findOne(filters).exec().then((root) => {
         if(!root) return [];
         return root.getChildrenAsync();
       });
-    });
+    // });
   },
 
   // @private
@@ -115,21 +115,12 @@ ServiceSchema.statics = {
       var newService = _.pick(data, ['name', 'price'])
       var service = new this(newService);
       service.parent = parent;
-      return service.savePromise();
+      return service.saveAsync();
     });
   }
 };
 
 ServiceSchema.methods = {
-	savePromise() {
-    return Q.Promise((resolve, reject) => {
-    	this.save((err, result) => {
-      	if(err) return reject(err);
-      	resolve(result);
-    	});
-    });
-	},
-
   getChildrenAsync(_params_ = {}) {
     var params = _.merge({ fields: '_id name price picture isRoot mode description reference' }, _params_);
     return Q.Promise((resolve, reject) => {

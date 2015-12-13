@@ -68,31 +68,16 @@ exports.index = function(req, res) {
       skip  = (page - 1) * limit;
 
   var query = utils.parseQuery(req.query);
+  query.skip   = skip;
+  query.limit  = limit;
+  query.active = true;
 
-  query.where.$or = [{
-    active : { $exists: false },
-  }, {
-    active : {
-      $exists: true,
-      $eq: true
-    }
-  }];
-
-  Q.all([
-    Appointment.count(query.where).exec(),
-    Appointment.find(query.where).lean().populate([{ 
-      path: 'user', select: 'name email phone'
-    }, { 
-      path: 'service.id', select: 'name price description' 
-    }, { 
-      path: 'person' 
-    }]).sort(query.sort).skip(skip).limit(limit).exec()
-  ])
-  .spread(function (total, results) {
-    res.set('X-Pagination-Total-Count', total);
-    res.status(200).json(results);
-  })
-  .then(null, handleError(res));
+  Appointment.paginate(query)
+    .spread((total, results) => {
+      res.set('X-Pagination-Total-Count', total);
+      res.status(200).json(results);
+    })
+    .catch(handleError(res));
 };
 
 // Gets a single Appointment from the DB
@@ -108,9 +93,9 @@ exports.create = function(req, res) {
   var body = req.body;
   if(!body.user) return res.json(422, { message: 'user required!' });
   console.log('----------------------------------------');
-  console.log('create:appointment', JSON.stringify(body, null, 2));
+  console.log('booking:appointment', JSON.stringify(body, null, 2));
   console.log('----------------------------------------');
-  Appointment.add(body)
+  Appointment.booking(body)
     .then(responseWithResult(res, 201))
     .then(null, handleError(res));
 };
@@ -138,13 +123,7 @@ exports.destroy = function(req, res) {
 exports.getDisabledPickup = function(req, res) {
   var user = req.user;
   var format = req.query.format || 'DD-MM-YYYY';
-  Appointment.find({ user: user._id }).select('pickuptime').exec()
-    .then(function (appointments) {
-      if(_.isEmpty(appointments)) return [];
-      var pickuptimes = _.map(appointments, function (o) {
-        return moment(o.pickuptime).format(format);
-      });
-      res.status(200).json(pickuptimes);
-    })
-    .then(null, handleError(res));
+  Appointment.getDisabledPickup({ user: user._id }, format)
+    .then(responseWithResult(res))
+    .catch(handleError(res));
 }

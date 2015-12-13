@@ -2,7 +2,7 @@
 	'use strict';
 
 	class ServiceCtrl {
-		constructor($scope, $state, $q, $timeout, Auth, OurService, Appointment, logger, Modal, CONFIG) {
+		constructor($scope, $state, $q, $timeout, Auth, OurService, Appointment, logger, Modal) {
 			this.$state = $state;
 			this.$q = $q;
 			this.$timeout = $timeout;
@@ -18,11 +18,9 @@
 			this.model = {};
 			this.model.service = {};
 			this.model.user = Auth.getCurrentUser() || {};
-
 			this.isCustomer = Auth.isCustomer;
 
 			this.config = { 
-				// title: CONFIG.service, 
 				mode: 0, // column, tab, modal
 				summary: {},
 				appointment: false, 
@@ -41,7 +39,10 @@
 				}
 			};
 
-			this._getOurService();
+			this._getOurService().then((data) => {
+				angular.extend(this.all, data);
+				this.items = data;
+			});
 
 			$scope.$on('$stateChangeSuccess', (env, to) => {
 				if(/appointment/.test(to.name) && _.isEmpty(this.services)) {
@@ -56,18 +57,20 @@
 		}
 
 		getColumnClass(items) {
-			if(!_.isEmpty(items)) {
-				if(items.length == 1) {
+			if(_.isEmpty(items)) return 'col-md-3';
+			switch(items.length) {
+				case 1:
 					return 'col-md-12';
-				} else if(items.length == 2) {
+					break;
+				case 2:
 					return 'col-md-6';
-				} else if(items.length == 3) {
+					break;
+				case 3:
 					return 'col-md-4';
-				} else {
+					break;
+				default:
 					return 'col-md-3';
-				}
-			} else {
-				return 'col-md-3';
+					break;
 			}
 		}
 
@@ -85,8 +88,8 @@
 				}
 
 				var item = _.last(nv);
-				var service_type = _.first(nv).name.toLowerCase();
-				if(service_type == 'repairs') {
+				var service_type = _.first(nv).name;
+				if(service_type.toLowerCase() == 'repairs') {
 					switch(nv.length) {
 						case 1:
 							this.title.header = 'Device Repair';
@@ -98,9 +101,13 @@
 							this.config.summary['Device'] = item.name;
 							break;
 						case 3:
+							if(item.parent) {
+								this.config.summary['Brand'] = item.parent;
+								item.name = `${item.parent} ${item.name}`;
+								delete item.parent;
+							}
 							this.title.header = 'Select Device Issue';
-							this.title.guide = `${item.parent} ${item.name}`;
-							this.config.summary['Brand'] = item.parent;
+							this.title.guide = `${item.name}`;
 							this.config.summary['Model'] = item.name;
 							break;
 						case 4:
@@ -108,16 +115,24 @@
 							break;
 					}
 				}
+				else if(/^setup/i.test(service_type)) {
+					switch(nv.length) {
+						case 1:
+							this.title.header = item.name;
+							this.title.guide = '';
+							break;
+						case 2:
+							this.config.summary['Setup'] = item.name;
+							break;
+						case 3:
+							if(item.parent) {
+								this.config.summary['Type'] = `${item.parent} - ${item.name}`;
+								delete item.parent;
+							}
+							break;
+					}
+				}
 			}
-		}
-
-		_getServiceSummary() {
-			if(_.isEmpty(this.services)) return;
-
-			this.title.header = 'Service Summary';
-			this.title.guide = null;
-
-			this._calcServiceEstimatePrice();
 		}
 
 		_calcServiceEstimatePrice() {
@@ -139,8 +154,6 @@
 			this.config.calculating = true;
 			return this.OurService.calculate(params).$promise.then((result) => {
 				angular.extend(this.model.service, result);
-				// this.logger.log('service', this.model.service);
-				// this.model.price = result.estimate_price;
 			}).catch((err) => {
 				this.logger.error('Failed', 'calculating estimate price', err);
 			}).finally(() => {
@@ -149,45 +162,47 @@
 		}
 
 		_getOurService(item) {
+			this.config.loading = true;
+
 			var query = { type: 'children' };
 			if(item) angular.extend(query, { reference: item.reference });
-			this.config.loading = true;
-			this.OurService.query(query).$promise.then((data) => {
-				if(!item) {
-					angular.extend(this.all, data);
-				} 
-				// reference, show in tabs
-				else {
-					var seviceitem = _.last(this.services);
-					seviceitem.mode = 1;
-					seviceitem.children = data;
-					this.config.mode = 1;
-				}
-				this.items = data;
-			}).catch((err) => {
-				this.logger.error('Failed', 'load services', err);
-			}).finally(() => {
-				this.config.loading = false;
-			});
+			return this.OurService.query(query).$promise
+				.catch((err) => { this.logger.error('Failed', 'load services', err) })
+				.finally(()  => { this.config.loading = false; });
 		}
 
 		_addToService(item, parent) {
+			this.items = item.children;
+
+			// check duplicate, add to service
 			if(!_.find(this.services, '_id', item._id)) {
 				var next = _.pick(item, ['_id', 'name', 'mode', 'children', 'reference']);
 				if(parent) next.parent = parent.name;
 				this.services.push(next);
 			}
-			this.items = item.children;
+
 			// end
 			if(_.isEmpty(this.items)) {
-				// get reference services
+				// get the reference services
+				// show the references in tabs
+				// add the references to the previous item
 				if(item.reference) {
-					this._getOurService(item);
+					return this._getOurService(item).then((references) => {
+						var seviceitem = _.last(this.services);
+						seviceitem.mode = 1;
+						seviceitem.children = references;
+						this.items = references;
+						this.config.mode = 1;
+					});
 				} 
-				// get service summary
-				else {
-					this._getServiceSummary();
-				}
+				// service summary
+				// get estimate price
+				this.title.header = 'Service Summary';
+				this.title.guide = null;
+				this.config.endService = true;
+				this._calcServiceEstimatePrice();
+			} else {
+				this.config.endService = false;
 			}
 		}
 
@@ -196,23 +211,26 @@
 			if(item.mode == 2) {
 				return this.Modal.list({
 					templateUrl: 'select-screen-size.html',
-					model: item.children,
-					windowClass: 'modal-service'
-				}, (selected) => {
-	        // this.logger.log('size', selected);
-					this._addToService(selected, parent);
-		    })(['Select screen size']);
+					windowClass: 'modal-service',
+					model: item.children
+				}, 
+				(selected) => this._addToService(selected, parent)) // resolve selected item, close modal
+				(['Select screen size']);														// open modal with title
 			}
 
 			// set view mode
 			this.config.mode = item.mode;
-
+			// add to services
 			this._addToService(item, parent);
 		}
 		getServiceParent(item) {
+			this.config.endService = false;
+
 			if(item === 'all') {
 				this.items = this.all;
 				this.services = [];
+				this.config.summary = {};
+				this.config.mode = 0;
 				return;
 			}
 
@@ -220,13 +238,10 @@
 			this.config.mode = item.mode;
 
 			if(_.last(this.services)._id == item._id) return;
-
 			var is = _.findIndex(this.services, { _id: item._id });
 			if(is > -1) {
-				this.items = angular.copy(this.services[is].children);
-				_.remove(this.services, (n, k) => {
-					return k > is;
-				});
+				this.items = angular.extend({}, this.services[is].children);
+				_.remove(this.services, (n, k) => { return k > is; });
 			}
 		}
 
@@ -306,7 +321,7 @@
 		}
 	}
 
-	ServiceCtrl.$inject = ['$scope', '$state', '$q', '$timeout', 'Auth', 'OurService', 'Appointment', 'logger', 'Modal', 'CONFIG'];
+	ServiceCtrl.$inject = ['$scope', '$state', '$q', '$timeout', 'Auth', 'OurService', 'Appointment', 'logger', 'Modal'];
 
 	angular.module('app.guest')
 	  .controller('ServiceCtrl', ServiceCtrl);

@@ -12,7 +12,6 @@
 var mongoose = require('mongoose'),
     ObjectId = mongoose.Types.ObjectId;
 var _ = require('lodash');
-var Q = require('q');
 
 var Service = require('./service.model');
 
@@ -103,7 +102,7 @@ exports.create = function(req, res) {
 exports.parent = function(req, res) {
   var body = req.body;
   var service = new Service(req.body);
-  service.savePromise()
+  service.saveAsync()
     .then(responseWithResult(res, 201))
     .then(null, handleError(res));
 };

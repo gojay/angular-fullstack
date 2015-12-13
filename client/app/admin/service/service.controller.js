@@ -10,8 +10,8 @@
 
 			this.name = 'Our Services';
 			this.options = { edited: false, focused: false, detail: false, modes: [
-				{ id: 0, title: 'Column' },
-				{ id: 1, title: 'Tab' },
+				{ id: 0, title: 'Columns' },
+				{ id: 1, title: 'Tabs' },
 				{ id: 2, title: 'Modal' }
 			] };
 
@@ -27,8 +27,8 @@
 				}).map((s) => {
 					return _.pick(s, ['_id', 'name']);
 				}).value();
-			}).catch((error) => {
-				this.logger.error();
+			}).catch((err) => {
+				this.logger.error('Failed', 'load services', err)
 			})
 		}
 
@@ -115,13 +115,13 @@
 				var service = new this.OurService(item);
 				service.$remove().then(() => {
 					this.logger.success('Success!', `Delete ${item.name}`);
-						scope.remove();
-					}).catch((error) => {
-						this.logger.error('Error occured!', `Delete ${item.name}`, error);
-					}).finally(() => {
-						item.deleting = false;
-						this._reset();
-					});
+					scope.remove();
+				}).catch((error) => {
+					this.logger.error('Error occured!', `Delete ${item.name}`, error);
+				}).finally(() => {
+					item.deleting = false;
+					this._reset();
+				});
 			})('');
 		}
 	}

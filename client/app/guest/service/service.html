@@ -58,7 +58,7 @@
             </div>
         </div>
 
-        <div class="row margin-top-bottom-lg" ng-if="!vm.items.length && vm.model.service && !vm.config.loading">
+        <div class="row margin-top-bottom-lg" ng-if="vm.config.endService === true">
             <div class="col-sm-6">
                 <div class="list-group">
                     <div class="list-group-item" ng-repeat="(key, value) in vm.config.summary">
@@ -72,7 +72,7 @@
                     <fieldset>
                         <div class="row setup-content" id="step-0">
                             <div class="col-sm-12">
-                                <!-- Estimate price -->
+                                <!-- Price estimate -->
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label" for="textinput">Price estimate</label>
                                     <div class="col-sm-8">
