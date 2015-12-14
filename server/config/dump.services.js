@@ -5,6 +5,72 @@ const PRICES2 = [100000, 200000, 300000, 400000, 500000, 600000, 700000, 800000]
 
 var services = [
   {
+    name: 'mobile issues',
+    isRef: true,
+    isRoot: true,
+    price: 0,
+    children: [
+      {
+        name: 'hardware',
+        price: 0,
+        mode: 1,
+        children: [
+          {
+            name: 'Front glass replacement',
+            price: PRICES2[Math.floor(Math.random()*PRICES2.length)]
+          },
+          {
+            name: 'Screen replacement',
+            price: PRICES2[Math.floor(Math.random()*PRICES2.length)]
+          },
+          {
+            name: 'Home button repair',
+            price: PRICES2[Math.floor(Math.random()*PRICES2.length)]
+          },
+          {
+            name: 'Battery replacement',
+            price: PRICES2[Math.floor(Math.random()*PRICES2.length)]
+          },
+          {
+            name: 'Back camera repair',
+            price: PRICES2[Math.floor(Math.random()*PRICES2.length)]
+          },
+          {
+            name: 'Front camera repair',
+            price: PRICES2[Math.floor(Math.random()*PRICES2.length)]
+          },
+          {
+            name: 'Water damage',
+            price: PRICES2[Math.floor(Math.random()*PRICES2.length)]
+          }
+        ]
+      },
+      {
+        name: 'software',
+        price: PRICES2[Math.floor(Math.random()*PRICES2.length)],
+        mode: 1
+      }
+    ]
+  },
+  {
+    name: 'desktop issues',
+    isRef: true,
+    isRoot: true,
+    price: 0,
+    children: [
+      {
+        name: 'hardware',
+        mode: 1,
+        price: PRICES2[Math.floor(Math.random()*PRICES2.length)]
+      },
+      {
+        name: 'software',
+        mode: 1,
+        price: PRICES2[Math.floor(Math.random()*PRICES2.length)]
+      }
+    ]
+  },
+  {
     name: 'services',
     isRoot: true,
     price: 0,
@@ -83,10 +149,10 @@ var services = [
                   }
                 ]
               },
-              {
+              /*{
                 name: 'asus',
                 price: PRICES[Math.floor(Math.random()*PRICES.length)]
-              },
+              },*/
               {
                 name: 'samsung',
                 price: PRICES[Math.floor(Math.random()*PRICES.length)],
@@ -155,7 +221,7 @@ var services = [
                   }
                 ]
               },
-              {
+              /*{
                 name: 'xiaomi',
                 price: PRICES[Math.floor(Math.random()*PRICES.length)],
                 children: [
@@ -223,7 +289,7 @@ var services = [
                     ]
                   }
                 ]
-              }
+              }*/
             ]
           },
           {
@@ -237,17 +303,7 @@ var services = [
                 _reference: 'mobile issues'
               },
               {
-                name: 'asus',
-                price: PRICES[Math.floor(Math.random()*PRICES.length)],
-                _reference: 'mobile issues'
-              },
-              {
                 name: 'samsung',
-                price: PRICES[Math.floor(Math.random()*PRICES.length)],
-                _reference: 'mobile issues'
-              },
-              {
-                name: 'LG',
                 price: PRICES[Math.floor(Math.random()*PRICES.length)],
                 _reference: 'mobile issues'
               }
@@ -267,11 +323,6 @@ var services = [
                 name: 'samsung',
                 price: PRICES[Math.floor(Math.random()*PRICES.length)],
                 _reference: 'desktop issues'
-              },
-              {
-                name: 'LG',
-                price: PRICES[Math.floor(Math.random()*PRICES.length)],
-                _reference: 'desktop issues'
               }
             ]
           },
@@ -287,11 +338,6 @@ var services = [
               },
               {
                 name: 'samsung',
-                price: PRICES[Math.floor(Math.random()*PRICES.length)],
-                _reference: 'desktop issues'
-              },
-              {
-                name: 'LG',
                 price: PRICES[Math.floor(Math.random()*PRICES.length)],
                 _reference: 'desktop issues'
               }
@@ -330,11 +376,11 @@ var services = [
                 price: 0,
                 children: [
                   {
-                    name: 'ios',
+                    name: 'iOS',
                     price: PRICES[Math.floor(Math.random()*PRICES.length)]
                   },
                   {
-                    name: 'android',
+                    name: 'Android',
                     price: PRICES[Math.floor(Math.random()*PRICES.length)]
                   }
                 ]
@@ -358,73 +404,7 @@ var services = [
         ]
       }
     ]
-  }, 
-  {
-    name: 'mobile issues',
-    isRef: true,
-    isRoot: true,
-    price: 0,
-    children: [
-      {
-        name: 'hardware',
-        price: 0,
-        mode: 1,
-        children: [
-          {
-            name: 'Front glass replacement',
-            price: PRICES2[Math.floor(Math.random()*PRICES2.length)]
-          },
-          {
-            name: 'Screen replacement',
-            price: PRICES2[Math.floor(Math.random()*PRICES2.length)]
-          },
-          {
-            name: 'Home button repair',
-            price: PRICES2[Math.floor(Math.random()*PRICES2.length)]
-          },
-          {
-            name: 'Battery replacement',
-            price: PRICES2[Math.floor(Math.random()*PRICES2.length)]
-          },
-          {
-            name: 'Back camera repair',
-            price: PRICES2[Math.floor(Math.random()*PRICES2.length)]
-          },
-          {
-            name: 'Front camera repair',
-            price: PRICES2[Math.floor(Math.random()*PRICES2.length)]
-          },
-          {
-            name: 'Water damage',
-            price: PRICES2[Math.floor(Math.random()*PRICES2.length)]
-          }
-        ]
-      },
-      {
-        name: 'software',
-        price: PRICES2[Math.floor(Math.random()*PRICES2.length)],
-        mode: 1
-      }
-    ]
-  },
-  {
-    name: 'desktop issues',
-    isRef: true,
-    isRoot: true,
-    price: 0,
-    children: [
-      {
-        name: 'hardware',
-        mode: 1,
-        price: PRICES2[Math.floor(Math.random()*PRICES2.length)]
-      },
-      {
-        name: 'software',
-        mode: 1,
-        price: PRICES2[Math.floor(Math.random()*PRICES2.length)]
-      }
-    ]
-  }
+  } 
 ];
 
 export default services;

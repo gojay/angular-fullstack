@@ -25,6 +25,13 @@ function OurService($resource) {
                 controller: 'calculate'
             }
         },
+        seed: {
+            method: 'POST',
+            params: {
+                id: null,
+                controller: 'seed'
+            }
+        },
         get: {
             method: 'GET',
         },

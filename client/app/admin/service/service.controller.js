@@ -2,25 +2,70 @@
 	'use strict';
 
 	class AdminServiceCtrl {
-		constructor($scope, $timeout, OurService, Modal, logger) {
+		constructor($scope, $timeout, $location, $anchorScroll, OurService, Modal, logger, socket, CONFIG) {
 			this.$timeout = $timeout;
+			this.$location = $location;
+			this.$anchorScroll = $anchorScroll;
 			this.OurService = OurService;
 			this.Modal = Modal;
 			this.logger = logger;
+      this.socket = socket;
 
 			this.name = 'Our Services';
-			this.options = { edited: false, focused: false, detail: false, modes: [
-				{ id: 0, title: 'Columns' },
-				{ id: 1, title: 'Tabs' },
-				{ id: 2, title: 'Modal' }
-			] };
+			this.options = { 
+				loading: false, 
+				edited: false, 
+				focused: false, 
+				detail: false, 
+				modes: CONFIG.service.modes,
+				seed: {
+					force: false,
+					progress: false 
+				}
+			};
 
 			this._getOurService();
-			this._reset();
+
+			this.seedProgress = [];
+			this.socket.syncUpdates('service', this.seedProgress, (event, item) => {
+				if(event == 'added') {
+					$location.hash('seed-'+ item.id);
+					$anchorScroll();
+				}
+			});
+
+      $scope.$on('$destroy', () => {
+      	this.socket.unsyncUpdates('service');
+      });
+		}
+
+		seedService() {
+			this.options.seed.progress = true;
+			this.OurService.seed().$promise
+				.then(() => {
+					this.logger.info('Success', 'Seeding');
+					this._getOurService();
+				})
+				.catch((err) => {
+					this.logger.error('Failed', 'Seeding', err)
+				})
+				.finally(() => {
+					this.options.seed.force = false;
+					this.options.seed.progress = false;
+					this.seedProgress = [];
+					this.$location.hash('tree-root');
+					this.$anchorScroll();
+				})
 		}
 
 		_getOurService() {
-			this.OurService.query().$promise.then((services) => {
+			this._reset();
+			this.options.loading = true;
+			return this.OurService.query().$promise.then((services) => {
+				if(_.isEmpty(services)) {
+					this.options.seed.force = true;
+					return;
+				}
 				this.items = services;
 				this.references = _(services).filter((s) => {
 					return s.isRef === true;
@@ -29,6 +74,8 @@
 				}).value();
 			}).catch((err) => {
 				this.logger.error('Failed', 'load services', err)
+			}).finally(() => {
+				this.options.loading = false;
 			})
 		}
 
@@ -41,8 +88,8 @@
 
 		_capitalize(str) {
 			return str.toLowerCase().replace( /\b\w/g, (m) => {
-		        return m.toUpperCase();
-		      });
+        return m.toUpperCase();
+      });
 		}
 
 		getInitial(str) {
@@ -126,7 +173,7 @@
 		}
 	}
 
-	AdminServiceCtrl.$inject = ['$scope', '$timeout', 'OurService', 'Modal', 'logger'];
+	AdminServiceCtrl.$inject = ['$scope', '$timeout', '$location', '$anchorScroll', 'OurService', 'Modal', 'logger', 'socket', 'CONFIG'];
 
 	angular.module('app.admin')
 	  .controller('AdminServiceCtrl', AdminServiceCtrl);

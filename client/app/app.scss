@@ -16,8 +16,11 @@ $fa-font-path: "../bower_components/font-awesome/fonts";
 }
 
 body {
+	padding-top: 70px;
+}
+
+.main {
 	min-height: 300px; 
-  	padding-top: 70px;
 }
 
 .margin-top-zero {

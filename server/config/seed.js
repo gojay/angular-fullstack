@@ -16,9 +16,12 @@ import _ from 'lodash';
 import Q from 'q';
 import faker from 'faker';
 
-const DELAY = 100;
+const DELAY = 1000;
+
+import ServiceEvents from '../api/service/service.events';
 
 let references = {};
+let log = {};
 
 var seed = {
   things() {
@@ -74,12 +77,12 @@ var seed = {
     });
   },
 
-  service(data) {
-    return Service.remove().exec().then(() => this._serviceRecursive(services.reverse()));
+  service() {
+    return Service.remove().exec().then(() => this._serviceRecursive(services));
   },
-  _serviceRecursive(arr, parent, dump = []) {
+  _serviceRecursive(arr, parent, id = '', number = 0, str = '') {
     var promises = arr.reduce((prev, next, index) => {
-      return prev.then(data => {
+      return prev.then(no => {
         var _service_ = new Service(next);
         // parent
         if(parent) _service_.parent = parent;
@@ -94,7 +97,16 @@ var seed = {
             references[_.kebabCase(service.name)] = service._id;
           }
 
-          data.push(service.name);
+          if(!id) {
+            str = '';
+          } else if(log[id]) {
+            str = log[id];
+          } else {
+            str = str.replace(/\s$/, '');
+            str += '--- ';
+            log[id] = str;
+          }
+
 console.log(`
 --------------------------------------
 parent      = ${parent ? parent.name : 'ROOT'} 
@@ -103,11 +115,16 @@ reference   = ${service.reference || 'N/A'}
 name        = ${service.name}
 description = ${service.description || 'N/A'} 
 price       = ${service.price}`);
-          if(_.isEmpty(next.children)) return Q.delay(DELAY).then(() => { return data; });
-          return Q.delay(DELAY).then(() => seed._serviceRecursive(next.children, service, data));
+
+          
+          no++;
+          ServiceEvents.emit('add', { id: no, message: `${str}${service.name}` });
+
+          if(_.isEmpty(next.children)) return Q.delay(DELAY).then(() => { return no; });
+          return Q.delay(DELAY).then(() => seed._serviceRecursive(next.children, service, next.name, no, str));
         });
       });
-    }, Q.when(dump));
+    }, Q.when(number));
     return promises;
   },
 

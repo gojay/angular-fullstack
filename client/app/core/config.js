@@ -2,6 +2,15 @@
 	'use strict';
 
 	angular.module('app.core')
+		.constant('CONFIG', {
+			service: {
+				modes: [
+					{ id: 0, title: 'Columns' },
+					{ id: 1, title: 'Tabs' },
+					{ id: 2, title: 'Modal' }
+				]
+			}
+		})
 		.config(($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) => {
 	    $urlRouterProvider
 	      .otherwise('/');

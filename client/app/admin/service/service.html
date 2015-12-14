@@ -1,7 +1,18 @@
 <div class="row">
     <div class="col-lg-12">
-        <h3 class="margin-bottom-lg">{{vm.name}}</h3>
-        <div class="text-center" ng-if="!vm.items.length">
+        <h3 class="margin-bottom-lg">
+            {{ vm.options.seed.progress ? 'Seeding ' + vm.name : vm.name }}
+            <a class="pull-right btn btn-info" ng-click="vm.seedService()" ng-if="vm.options.seed.force">
+                <i class="fa fa-circle-o-notch fa-spin" ng-if="vm.options.seed.progress"></i>
+                {{ vm.options.seed.progress ? 'Seeding...' : 'Seed' }}
+            </a>
+        </h3>
+        <ol>
+            <li id="seed-{{progress.id}}" ng-repeat="progress in vm.seedProgress">
+                <i class="fa fa-check"></i> {{progress.message}}
+            </li>
+        </ol>
+        <div class="text-center" ng-if="vm.options.loading">
         	<i class="fa fa-circle-o-notch fa-spin"></i>
         	Loading...
     	</div>
@@ -17,10 +28,7 @@
         <div class="row">
             <div class="col-md-9">
                 <a class="btn btn-success btn-xs" ng-if="service.children && service.children.length > 0" ng-click="vm.toggle(this)" style="vertical-align: top;">
-                    <i class="fa" ng-class="{
-			          'fa-chevron-right': collapsed,
-			          'fa-chevron-down': !collapsed
-			        }"></i>
+                    <i class="fa" ng-class="{'fa-chevron-right': collapsed, 'fa-chevron-down': !collapsed }"></i>
                 </a>
                 <label ng-if="!service.edited">
                     <div style="float:left;padding-right: 10px;">
@@ -87,4 +95,3 @@
         </li>
     </ol>
 </script>
-<footer></footer>

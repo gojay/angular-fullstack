@@ -14,7 +14,6 @@ exports.register = function(socket) {
   for (var i = 0, eventsLength = events.length; i < eventsLength; i++) {
     var event = events[i];
     var listener = createListener('thing:' + event, socket);
-
     ThingEvents.on(event, listener);
     socket.on('disconnect', removeListener(event, listener));
   }
@@ -23,6 +22,7 @@ exports.register = function(socket) {
 
 function createListener(event, socket) {
   return function(doc) {
+    console.log('socket:Thing', event, doc);
     socket.emit(event, doc);
   };
 }

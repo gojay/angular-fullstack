@@ -136,3 +136,12 @@ exports.calculate = function(req, res) {
     .then(responseWithResult(res))
     .then(null, handleError(res));
 };
+
+
+var Seed = require('../../config/seed');
+
+exports.seed = function(req, res) {
+  Seed.service()
+    .then(responseWithResult(res))
+    .then(null, handleError(res));
+}

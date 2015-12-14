@@ -7,14 +7,13 @@
 var ServiceEvents = require('./service.events');
 
 // Model events to emit
-var events = ['save', 'remove'];
+var events = ['save', 'remove', 'add'];
 
 exports.register = function(socket) {
   // Bind model events to socket events
   for (var i = 0, eventsLength = events.length; i < eventsLength; i++) {
     var event = events[i];
     var listener = createListener('service:' + event, socket);
-
     ServiceEvents.on(event, listener);
     socket.on('disconnect', removeListener(event, listener));
   }
@@ -23,6 +22,7 @@ exports.register = function(socket) {
 
 function createListener(event, socket) {
   return function(doc) {
+    console.log('socket:emit', event);
     socket.emit(event, doc);
   };
 }
