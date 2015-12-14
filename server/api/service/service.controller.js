@@ -98,10 +98,13 @@ exports.create = function(req, res) {
     .then(responseWithResult(res, 201))
     .then(null, handleError(res));
 };
+
 // Creates a new Service in the DB
-exports.parent = function(req, res) {
+exports.addReference = function(req, res) {
   var body = req.body;
   var service = new Service(req.body);
+  service.isRef  = true;
+  service.isRoot = true;
   service.saveAsync()
     .then(responseWithResult(res, 201))
     .then(null, handleError(res));

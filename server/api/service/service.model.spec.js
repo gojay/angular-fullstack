@@ -7,15 +7,15 @@ import Seed from '../../config/seed';
 
 const PRICES = [10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000];
 
-describe('Service Model :', function() {
+describe.only('Service Model :', function() {
   this.timeout(600000);
 
-  it.skip('should seed services', (done) => {
+  it('should seed services', (done) => {
     Seed.service().then(() => {
-      // console.log('seed done!');
+      console.log('seed done!');
       done();
     }).then(null, (err) => {
-      // console.log('seed ERROR!', err);
+      console.log('seed ERROR!', err);
       done(err);
     });
   });
@@ -29,22 +29,26 @@ describe('Service Model :', function() {
 
   describe('primary', () => {
 
-    it('should get default primary', (done) => {
+    it('should get default', (done) => {
       Service.getPrimary().then((result) => {
-        // console.log('Services', JSON.stringify(result, null, 1));
-        _.pluck(result, 'name').should.eql(['Repairs', 'Setup'])
+        _.pluck(result, 'name').should.eql(['Repairs', 'Setup & Installations'])
         done();
       });
     });
 
-    it('should get issue primary', (done) => {
-      Service.getPrimary('Issues').then((result) => {
-        // console.log('Services', JSON.stringify(result, null, 1));
+    it('should get mobile issues', (done) => {
+      Service.getPrimary('Mobile issues').then((result) => {
         _.pluck(result, 'name').should.eql(['Hardware', 'Software'])
         done();
       });
     });
 
+    it('should get desktop issues', (done) => {
+      Service.getPrimary('Desktop issues').then((result) => {
+        _.pluck(result, 'name').should.eql(['Hardware', 'Software'])
+        done();
+      });
+    });
   });
 
   describe('children', () => {
@@ -75,7 +79,6 @@ describe('Service Model :', function() {
         children.should.be.an.instanceOf(Array);
       }).finally(done);
     });
-
   })
 
   describe('Galaxy Alpha', () => {
@@ -148,6 +151,5 @@ describe('Service Model :', function() {
     after((done) => {
       Service.remove({ name: { $regex: 'Acer', $options: 'i' } }).execAsync().finally(done);
     });
-
   });
 });

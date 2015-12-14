@@ -84,11 +84,14 @@ var seed = {
         // parent
         if(parent) _service_.parent = parent;
         // reference
-        if(next._reference && references.hasOwnProperty(next._reference)) _service_.reference = references[next._reference];
+        if(next._reference) {
+          var ref = _.kebabCase(next._reference);
+          if(references.hasOwnProperty(ref)) _service_.reference = references[ref];
+        }
         // save promise
         return _service_.saveAsync().spread((service) => {
-          if(!/services/i.test(service.name) && service.isRoot) {
-            references[service.name.toLowerCase()] = service._id;
+          if(service.isRef) {
+            references[_.kebabCase(service.name)] = service._id;
           }
 
           data.push(service.name);

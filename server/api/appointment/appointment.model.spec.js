@@ -9,11 +9,12 @@ import Service from '../service/service.model';
 
 import faker from 'faker';
 
-describe.only('Appointment Model :', function() {
+describe('Appointment Model :', function() {
   this.timeout(600000);
 	var appointment;
 
 	const HOUR_TIMES = [10, 14, 17]; // 10AM, 2PM, 5PM
+	const DAYS = [1,2,3]; // 10AM, 2PM, 5PM
 
 	describe('Booking', () => {
 	  function getService() {
@@ -60,7 +61,7 @@ describe.only('Appointment Model :', function() {
 	  async function buildAppointment(params) {
 	  	var service = await getService();
 	  	var {user, address} = await getUserAndAddress(params);
-	  	var pickuptime  = moment({ h:_.random(HOUR_TIMES), m:0, s:0 }).add(2, 'd').toDate();
+	  	var pickuptime  = moment({ h:_.random(HOUR_TIMES), m:0, s:0 }).add(_.random(DAYS), 'd').toDate();
 	  	return {service, user, address, pickuptime};
 	  }
 

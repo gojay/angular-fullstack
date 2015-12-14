@@ -88,13 +88,17 @@ AppointmentSchema.statics = {
     },
 
     getDisabledPickup(params, format = 'DD-MM-YYYY') {
-        return this.find(params).select('pickuptime').execAsync()
-            .then((appointments) => {
-                if(_.isEmpty(appointments)) return [];
-                return _.map(appointments, (o) => {
-                    return moment(o.pickuptime).format(format);
-                });
+        return this.aggregate([
+            { $match: params },
+            { $group: { _id: '$pickuptime' } },
+            { $sort: { _id: 1 } },
+            { $project: { _id: 0, date: '$_id' } }
+        ]).execAsync().then((appointments) => {
+            if(_.isEmpty(appointments)) return [];
+            return _.map(appointments, (o) => {
+                return moment(o.date).format(format);
             });
+        });
     },
 
     _createWithGenerateCode(data) {

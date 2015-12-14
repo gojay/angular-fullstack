@@ -16,6 +16,7 @@ var ServiceSchema = new Schema({
     default: 0
   },
   reference: Schema.Types.ObjectId,
+  isRef: { type: Boolean, default: false },
   isRoot: { type: Boolean, default: false },
   active: { type: Boolean, default: true },
 });
@@ -31,7 +32,7 @@ ServiceSchema.statics = {
       .then((roots) => {
         if(_.isEmpty(roots)) return [];
         var promises = roots.map((root) => {
-          return root.getChildrenAsync({ fields: '_id name picture isRoot mode description reference' }).then((result) => {
+          return root.getChildrenAsync({ fields: '_id name picture mode description reference isRoot isRef' }).then((result) => {
             var obj = root.toObject();
             obj.children = result;
             return obj;

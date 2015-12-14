@@ -23,7 +23,7 @@
 			this.OurService.query().$promise.then((services) => {
 				this.items = services;
 				this.references = _(services).filter((s) => {
-					return !/service/i.test(s.name);
+					return s.isRef === true;
 				}).map((s) => {
 					return _.pick(s, ['_id', 'name']);
 				}).value();
