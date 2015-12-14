@@ -66,7 +66,7 @@ AppointmentSchema.statics = {
 
     paginate(query) {
         return Promise.all([
-            this.count(query.where).exec(),
+            this.count(query.where).execAsync(),
             this.find(query.where).populate([
                 {
                     path: 'user',
@@ -83,17 +83,18 @@ AppointmentSchema.statics = {
                 {
                     path: 'person'
                 }
-            ]).sort(query.sort).skip(query.skip).limit(query.limit).exec()
+            ]).sort(query.sort).skip(query.skip).limit(query.limit).execAsync()
         ]);
     },
 
-    getDisabledPickup(params, format) {
-        return this.findAsync(params).select('pickuptime').then((appointments) => {
-            if(_.isEmpty(appointments)) return [];
-            return _.map(appointments, (o) => {
-                return moment(o.pickuptime).format(format);
+    getDisabledPickup(params, format = 'DD-MM-YYYY') {
+        return this.find(params).select('pickuptime').execAsync()
+            .then((appointments) => {
+                if(_.isEmpty(appointments)) return [];
+                return _.map(appointments, (o) => {
+                    return moment(o.pickuptime).format(format);
+                });
             });
-        });
     },
 
     _createWithGenerateCode(data) {

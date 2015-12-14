@@ -178,7 +178,7 @@ describe.only('Appointment Model :', function() {
 				it('should has appointment', () => {
 			  	// console.log(JSON.stringify(appointment, null, 2));
 			  });
-			  
+
 			  describe('Booked', () => {
 			  	var booked;
 			  	before((done) => {
@@ -225,8 +225,27 @@ describe.only('Appointment Model :', function() {
 				  });
 			  });
 			})
-
 		});
+
+		describe('pickuptime', () => {
+			var user;
+			before((done) => {
+				User.findOne({ role: 'customer' }).select('name email').execAsync()
+					.then((_user_) => {
+						user = _user_;
+					})
+					.finally(done);
+			});
+
+			it('should get disable pickuptime', (done) => {
+				Appointment.getDisabledPickup({ user: user._id })
+					.then((dates) => {
+						console.log('disabled pickuptime', JSON.stringify(dates, null, 2));
+						dates.should.be.an.instanceOf(Array);
+					})
+					.finally(done);
+			});
+		})
 
 	});
 });
