@@ -16,6 +16,13 @@ var UserSchema = new Schema({
     enum: ['admin', 'customer'],
     default: 'customer',
   },
+  address: [{
+    city: String,
+    street: String,
+    zipcode: String,
+    additional: String
+  }],
+  phone: String,
   password: String,
   provider: String,
   salt: String,

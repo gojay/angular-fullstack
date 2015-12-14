@@ -114,6 +114,8 @@ AppointmentSchema.statics = {
     },
 
     booking(body) {
+        if(!body) throw new Error('Body undefined!');
+
         var appointment = _.omit(body, ['user', 'address', '_address']);
         var userAsync;
 
@@ -124,7 +126,7 @@ AppointmentSchema.statics = {
                 // set appointment address
                 appointment.address = body._address;
                 // add new address
-                var where  = { _id: ObjectId(body.user._id) },
+                var where  = { _id: mongoose.Types.ObjectId(body.user._id) },
                     update = { $addToSet: { address: body._address } };
                 userAsync = User.findOneAndUpdateAsync(where, update);
             }
@@ -136,17 +138,18 @@ AppointmentSchema.statics = {
             }
             // get adress from user profile
             else {
-                userAsync = User.findByIdAsync(body.user._id).select('name email address').then(function (user) {
-                    var address = user.address[0];
-                    // set appointment address
-                    appointment.address = {
-                        city: address.city,
-                        street: address.street,
-                        zipcode: address.zipcode,
-                        additional: address.additional
-                    };
-                    return user;
-                });
+                userAsync = User.findById(body.user._id).select('name email phone address').execAsync()
+                    .then((user) => {
+                        var address = user.address[0];
+                        // set appointment address
+                        appointment.address = {
+                            city: address.city,
+                            street: address.street,
+                            zipcode: address.zipcode,
+                            additional: address.additional
+                        };
+                        return user;
+                    });
             }
         }
         // create user
@@ -156,10 +159,10 @@ AppointmentSchema.statics = {
                 appointment.address = address;
                 body.user.address = _.isArray(address) ? address : [address];
             }
-            userAsync = User.create(body.user);
+            userAsync = Promise.resolve(User.create(body.user));
         }
 
-        userAsync.then((user) => {
+        return userAsync.then((user) => {
             if (!user) throw new Error('User not found!');
             appointment.user  = user._id;
             appointment.name  = user.name;

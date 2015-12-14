@@ -4,7 +4,6 @@ var mongoose = require('bluebird').promisifyAll(require('mongoose'));
 var Schema = mongoose.Schema;
 var tree = require('mongoose-path-tree');
 var _ = require('lodash');
-var Q = require('q');
 
 var ServiceSchema = new Schema({
   name: String,
@@ -28,24 +27,25 @@ ServiceSchema.path('name')
 
 ServiceSchema.statics = {
   getAll() {
-    return this.find({ isRoot: true }).sort({ _id: -1 }).exec().then((roots) => {
-      if(_.isEmpty(roots)) return [];
-      var promises = roots.map((root) => {
-        return root.getChildrenAsync({ fields: '_id name picture isRoot mode description reference' }).then((result) => {
-          var obj = root.toObject();
-          obj.children = result;
-          return obj;
+    return this.find({ isRoot: true }).sort({ _id: -1 }).execAsync()
+      .then((roots) => {
+        if(_.isEmpty(roots)) return [];
+        var promises = roots.map((root) => {
+          return root.getChildrenAsync({ fields: '_id name picture isRoot mode description reference' }).then((result) => {
+            var obj = root.toObject();
+            obj.children = result;
+            return obj;
+          });
         });
+        return Promise.all(promises);
       });
-      return Q.all(promises);
-    });
   },
 
   getPrimary(parent = 'Services') {
-    return this.findOne({ name: parent, isRoot: true }).select('_id').exec()
+    return this.findOne({ name: parent, isRoot: true }).select('_id').execAsync()
       .then((root) => {
         if(!root) return [];
-        return this.find({ parent: root._id }).select('name price mode').exec();
+        return this.find({ parent: root._id }).select('name price').sort({ _id: 1 }).execAsync();
       });
   },
 
@@ -57,17 +57,16 @@ ServiceSchema.statics = {
       filters._id = mongoose.Types.ObjectId(reference);
     }
 
-    // return Q.delay(1000).then(() => {
-      return this.findOne(filters).exec().then((root) => {
+    return this.findOne(filters).execAsync()
+      .then((root) => {
         if(!root) return [];
         return root.getChildrenAsync();
       });
-    // });
   },
 
   // @private
   _getEstimatePrice(id) {
-    return this.findById(id).exec()
+    return this.findById(id).execAsync()
       .then((service) => {
         if(_.isEmpty(service)) return { items: [], estimate_price: 0 };
         return service.getAncestorsAsync('name price')
@@ -85,45 +84,48 @@ ServiceSchema.statics = {
 
     var promises = [];
 
-    // get estimate price from reference first!!
-    if(params.reference) {
-      promises.push(this._getEstimatePrice(params.reference));
-    } else {
-      promises.push(Q.when({ items: [], estimate_price: 0 }));
-    }
-
     // get estimate price from origin
     promises.push(this._getEstimatePrice(params.origin));
 
-    return Q.all(promises).then((estimates) => {
-      var data = _.reduce(estimates, (obj, item, index) => {
-        Array.prototype.push.apply(obj.items, item.items);
-        obj.estimate_price += item.estimate_price;
-        return obj;
-      }, { items: [], estimate_price: 0 });
-      data.id = params.origin;
-      data.reference = params.reference;
-      data.step = _.pluck(data.items, 'name');
-      return data;
-    });
+    // get estimate price from reference!!
+    if(params.reference) {
+      promises.push(this._getEstimatePrice(params.reference));
+    } else {
+      promises.push(Promise.resolve({ items: [], estimate_price: 0 }));
+    }
+
+    return Promise.all(promises)
+      .then((estimates) => {
+        var data = _.reduce(estimates, (obj, item, index) => {
+          Array.prototype.push.apply(obj.items, item.items);
+          obj.estimate_price += item.estimate_price;
+          return obj;
+        }, { items: [], estimate_price: 0 });
+        data.id = params.origin;
+        data.reference = params.reference;
+        data.step = _.pluck(data.items, 'name');
+        return data;
+      });
 	},
 
   add(data) {
     if(!data.parent) return this.create(data);
-    return this.findById(data.parent).exec().then((parent) => {
-      if(!parent) throw new Error('Parent not found');
-      var newService = _.pick(data, ['name', 'price'])
-      var service = new this(newService);
-      service.parent = parent;
-      return service.saveAsync();
-    });
+    return this.findById(data.parent).execAsync()
+      .then((parent) => {
+        if(!parent) throw new Error('Parent not found');
+        var newService = _.pick(data, ['name', 'price'])
+        var service = new this(newService);
+        service.parent = parent;
+        return service.saveAsync();
+      })
+      .spread((result) => { return result; });
   }
 };
 
 ServiceSchema.methods = {
   getChildrenAsync(_params_ = {}) {
     var params = _.merge({ fields: '_id name price picture isRoot mode description reference' }, _params_);
-    return Q.Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       this.getChildrenTree(params, (err, result) => {
         if(err) {
           reject(err)
@@ -131,12 +133,12 @@ ServiceSchema.methods = {
           resolve(result);
         }
       });
-    })
+    });
   },
 
   getAncestorsAsync(fields) {
     var select = fields || '_id name price isRoot mode description reference';
-    return Q.Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       this.getAncestors({ isRoot: false }, 'name price', (err, result) => {
         if(err) {
           reject(err);

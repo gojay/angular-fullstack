@@ -3,7 +3,7 @@
 import _ from 'lodash';
 import Q from 'q';
 
-describe.skip('ES6', function() {
+describe('ES6', function() {
   this.timeout(60000000);
 
   var tree = [
@@ -409,7 +409,7 @@ ${tab}take   = ${timeout}ms`);
     /**
      * @see http://derickbailey.com/2015/07/19/using-es6-generators-to-recursively-traverse-a-nested-data-structure/
      */
-    it.only('recursive function', (done) => {
+    it('recursive function', (done) => {
       function p(val) {
         let timeout = _.random(1000, 5000);
         return Q.Promise((resolve, reject) => {

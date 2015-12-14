@@ -86,7 +86,7 @@ var seed = {
         // reference
         if(next._reference && references.hasOwnProperty(next._reference)) _service_.reference = references[next._reference];
         // save promise
-        return _service_.savePromise().then((service) => {
+        return _service_.saveAsync().spread((service) => {
           if(!/services/i.test(service.name) && service.isRoot) {
             references[service.name.toLowerCase()] = service._id;
           }
