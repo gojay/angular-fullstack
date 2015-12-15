@@ -1,0 +1,54 @@
+<!-- STEP 1 -->
+<div class="row" id="step-1">
+  <div class="col-md-10 col-center">
+    <form class="form-horizontal search" name="form" ng-submit="vm.nextStep(form, 'step2')" novalidate>
+      <h3 class="text-center">We are currently available in Jakarta Selatan area</h3>
+      <h2 class="text-center">Let's make sure you are within our service area</h2>
+      <div class="form-group" ng-class="vm.getFormClass(form.area)">
+        <!-- Text Name -->
+        <div class="col-md-8 col-center">
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="Enter your location / post code" name="area" ng-model="vm.model.area" required>
+            <span class="input-group-btn">
+              <button class="btn btn-default" type="submit">
+                <i class="fa fa-search"></i>
+              </button>
+            </span>
+          </div>
+          <div class="col-md-12" 
+            ng-if="vm.isInteracted(form.area)" 
+            ng-messages="form.area.$error">
+              <div ng-messages-include="app/layout/_ng-messages.html"></div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <h3 class="text-center">Great! You are within our service area</h3>
+        <div class="col-sm-offset-2 col-sm-8 col-sm-offset-2">
+          <button class="btn btn-primary btn-block" type="submit">
+            Proceed To Booking 
+          </button>
+        </div>
+      </div>
+    </form>
+    <form class="form-horizontal notify" name="formNotify" ng-submit="vm.notify(formNotify)" novalidate>
+      <h3 class="text-center">Unfortunately! your location is not within our coverage area yet</h3>
+      <h3 class="text-center">NOTIFY ME WHEN MY ARE IS COVERED</h3>
+      <div class="row" ng-class="vm.getFormClass(formNotify.email)">
+        <div class="col-md-8 col-center">
+          <div class="input-group">
+            <input type="email" class="form-control" name="email" placeholder="Enter your email" ng-model="vm.model.email" required>
+            <span class="input-group-btn">
+              <button class="btn" type="button">Get notified!</button>
+            </span>
+          </div>
+          <div class="col-md-12" 
+            ng-if="vm.isInteracted(formNotify.email)" 
+            ng-messages="formNotify.email.$error">
+              <div ng-messages-include="app/layout/_ng-messages.html"></div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

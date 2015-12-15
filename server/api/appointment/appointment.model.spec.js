@@ -9,7 +9,7 @@ import Service from '../service/service.model';
 
 import faker from 'faker';
 
-describe('Appointment Model :', function() {
+describe.only('Appointment Model :', function() {
   this.timeout(600000);
 	var appointment;
 
@@ -30,21 +30,6 @@ describe('Appointment Model :', function() {
 	  }
 
 	  function getUserAndAddress(params = {}) {
-	  	if(params.user) {
-	  		return User.findOne({ role: 'customer' }).select('name email phone').execAsync()
-	  			.then((user) => {
-	  				if(params.address) {
-	  					var address = {
-					  		city: faker.address.city(),
-						    street: [faker.address.streetAddress(), faker.address.streetName()].join(' '),
-						    zipcode: faker.address.zipCode()
-					  	};
-					  	return {user, address};
-	  				}
-	  				return {user};
-	  			});
-	  	}
-
 	  	var user = {
 	  		name: faker.name.findName(),
 	  		email: faker.internet.email(),
@@ -55,6 +40,27 @@ describe('Appointment Model :', function() {
 		    street: [faker.address.streetAddress(), faker.address.streetName()].join(' '),
 		    zipcode: faker.address.zipCode()
 	  	};
+
+	  	if(params.user) {
+	  		return User.findOne({ role: 'customer' }).select('name email phone').execAsync()
+	  			.then((_user_) => {
+	  				if(!_user_) {
+	  					var newUser = new User();
+	  					newUser.name = user.name;
+	  					newUser.email = user.email;
+	  					newUser.phone = user.phone;
+	  					newUser.address = [address];
+	  					return newUser.saveAsync().spread((_newUser_) => {
+	  						return { user: _newUser_ };
+	  					});
+	  				}
+
+	  				if(params.address) {
+					  	return { user: _user_, address };
+	  				}
+	  				return { user: _user_ };
+	  			});
+	  	}
 	  	return Promise.resolve({ user, address });
 	  }
 
@@ -107,13 +113,53 @@ describe('Appointment Model :', function() {
 			  	booked.code.should.be.an.instanceOf(String);
 			  });
 
-			  it('appointment shold be booked by same user & same address', () => {
-			  	booked.user.should.be.ok;
+			  it('should not create an account', (done) => {
+			  	_.has(booked, 'user').should.be.false;
+			  	User.count({ role: 'customer' }).execAsync()
+			  		.then((total) => {
+			  			total.should.equal(0);
+			  		})
+			  		.finally(done);
+			  });
+
+			  it('should be booked', () => {
 			  	booked.name.should.equal(appointment.user.name);
 			  	booked.email.should.equal(appointment.user.email.toLowerCase());
 			  	booked.phone.should.equal(appointment.user.phone);
 			  	booked.address.should.eql(appointment.address);
 			  });
+
+			  describe('create an account after book appointment', () => {
+			  	var newUser;
+
+			  	before((done) => {
+  					var _user_ = new User();
+  					_user_.name = appointment.user.name;
+  					_user_.email = appointment.user.email;
+  					_user_.phone = appointment.user.phone;
+  					_user_.address = [appointment.address];
+  					return _user_.saveAsync().spread((_newUser_) => {
+  						newUser = _newUser_;
+  					}).finally(done);
+			  	});
+
+			  	it('should account created & have booking id', () => {
+			  		_.has(booked, '_id').should.be.true;
+			  		_.has(newUser, '_id').should.be.true;
+			  		newUser.should.be.an.instanceOf(Object);
+			  	});
+
+			  	it('should set user to appointment', (done) => {
+			  		Appointment.setUser({ id: booked._id, user: newUser })
+			  			.then((result) => {
+			  				// console.log('appointment', JSON.stringify(result, null, 2));
+			  				result.should.be.an.instanceOf(Object);
+			  			})
+			  			.finally(done);
+			  	});
+
+			  });
+
 		  });
 	  });
 
@@ -121,6 +167,7 @@ describe('Appointment Model :', function() {
 			var appointment;
 
 			describe('Direct', () => {
+				
 				before((done) => {
 		  		buildAppointment({ user: true }).then((_appointment_) => {
 		  			appointment = _appointment_;
@@ -151,7 +198,7 @@ describe('Appointment Model :', function() {
 				  	booked.code.should.be.an.instanceOf(String);
 				  });
 
-				  it('appointment shold be booked by same user & same address', () => {
+				  it('should be booked', () => {
 				  	booked.user.toString().should.equal(appointment.user._id.toString());
 				  	booked.name.should.equal(appointment.user.name);
 				  	booked.email.should.equal(appointment.user.email.toLowerCase());
@@ -159,7 +206,7 @@ describe('Appointment Model :', function() {
 				  });
 
 				  it('should have 2 appointments', (done) => {
-				  	Appointment.count({ user: appointment.user._id }).execAsync()
+				  	Appointment.count({ email: appointment.user.email.toLowerCase() }).execAsync()
 				  		.then((total) => {
 				  			total.should.equal(2);
 				  		})
@@ -200,7 +247,7 @@ describe('Appointment Model :', function() {
 				  	booked.code.should.be.an.instanceOf(String);
 				  });
 
-				  it('appointment shold be booked by same user & same address', () => {
+				  it('should appointment booked', () => {
 				  	booked.user.toString().should.equal(appointment.user._id.toString());
 				  	booked.name.should.equal(appointment.user.name);
 				  	booked.email.should.equal(appointment.user.email.toLowerCase());
@@ -227,26 +274,25 @@ describe('Appointment Model :', function() {
 			  });
 			})
 		});
+	});
 
-		describe('pickuptime', () => {
-			var user;
-			before((done) => {
-				User.findOne({ role: 'customer' }).select('name email').execAsync()
-					.then((_user_) => {
-						user = _user_;
-					})
-					.finally(done);
-			});
+	describe('Pickup time', () => {
+		var user;
+		before((done) => {
+			User.findOne({ role: 'customer' }).select('name email').execAsync()
+				.then((_user_) => {
+					user = _user_;
+				})
+				.finally(done);
+		});
 
-			it('should get disable pickuptime', (done) => {
-				Appointment.getDisabledPickup({ user: user._id })
-					.then((dates) => {
-						console.log('disabled pickuptime', JSON.stringify(dates, null, 2));
-						dates.should.be.an.instanceOf(Array);
-					})
-					.finally(done);
-			});
-		})
-
+		it('should get disable pickuptime', (done) => {
+			Appointment.getDisabledPickup({ user: user._id })
+				.then((dates) => {
+					console.log(dates);
+					dates.should.be.an.instanceOf(Array);
+				})
+				.finally(done);
+		});
 	});
 });

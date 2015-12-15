@@ -1,0 +1,42 @@
+<!-- STEP 3 -->
+<div id="step-3">
+    <h2 class="text-center">Pickup Schedule</h2>
+    <h3 class="text-center">Select your pickup date and time</h3>
+    <div class="row margin-top-bottom-lg">
+        <div class="col-md-8">
+            <datepicker class="datepicker" ng-model="vm.model.pickuptime"
+                min-date="vm.config.datePicker.minDate.toDate()" show-weeks="false"
+                datepicker-options="vm.config.datePicker.options"
+                date-disabled="vm.disabledDP(date, mode)"
+                custom-class="vm.getDayClassDP(date, mode)">
+            </datepicker>
+        </div>
+        <div class="col-md-4 detail">
+            <div class="row">
+                <div class="col-md-12">
+                    <label class="title">Today</label>
+                    <p>{{vm.config.datePicker.today}}</p>
+                </div>
+                <div class="col-md-12">
+                    <label class="title">Pick Up Date</label>
+                    <p class="big">{{vm.getSelectedPickup('dddd')}}</p>
+                    <p class="big">{{vm.getSelectedPickup('d MMM')}}</p>
+                </div>
+                <div class="col-md-12">
+                    <label class="title">Pick Up Time</label>
+                    <div class="radio" ng-repeat="time in vm.config.datePicker.times">
+                        <label>
+                            <input type="radio" name="{{time.name}}" ng-value="time.name">
+                            {{time.title}}
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <button class="btn btn-primary btn-block" type="submit">
+                      Confirm Booking 
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

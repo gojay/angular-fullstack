@@ -1,0 +1,92 @@
+<!-- STEP 2 -->
+<div class="row" id="step-1">
+  <div class="col-md-8 col-center">
+    <form class="form-horizontal" name="form" ng-submit="vm.nextStep(form, 'step3')" novalidate>
+      <fieldset>
+        <legend>Contact Information</legend>
+        <div class="row setup-content">
+            <!-- Text Name -->
+            <div class="form-group" ng-class="vm.getFormClass(form.name)">
+                <div class="col-sm-12">
+                    <input autocomplete="on" type="text" placeholder="Full Name" class="form-control" ng-model="vm.model.user.name" name="name" required>
+                </div>
+                <div class="col-md-12" ng-if="vm.isInteracted(form.name)" ng-messages="form.name.$error">
+                  <div ng-messages-include="app/layout/_ng-messages.html"></div>
+                </div>
+            </div>
+            <!-- Text Email -->
+            <div class="form-group" ng-class="vm.getFormClass(form.email)">
+                <div class="col-sm-12">
+                    <input type="email" placeholder="Email Address" class="form-control" name="email" required
+                      ng-model="vm.model.user.email" 
+                      ng-model-options="{ updateOn:'blur' }" 
+                      record-availability-validator="/api/customers/validator">
+                </div>
+                <div class="col-md-12" 
+                  ng-if="vm.isInteracted(form.email)" 
+                  ng-messages="form.email.$error">
+                    <div ng-messages-include="app/layout/_ng-messages.html"></div>
+                    <p class="help-block" ng-message="recordAvailabilityValidator">This email already taken</p>
+                </div>
+            </div>
+            <!-- Text phone -->
+            <div class="form-group" ng-class="vm.getFormClass(form.phone)">
+                <div class="col-sm-12">
+                  <input type="tel" placeholder="Mobile phone number" class="form-control" ng-model="vm.model.user.phone" name="phone" required>
+                </div>
+                <div class="col-md-12" ng-if="vm.isInteracted(form.phone)" ng-messages="form.phone.$error">
+                  <div ng-messages-include="app/layout/_ng-messages.html"></div>
+                </div>
+            </div>
+        </div>
+
+        <legend>Pickup Location</legend>
+        <div class="row setup-content">
+            <!-- Text Address 1 -->
+            <div class="form-group">
+              <div class="col-sm-12">
+                  <textarea name="address1" rows="1" placeholder="Address 1" class="form-control" ng-model="vm.model._address.address1" required></textarea required>
+              </div>
+              <div class="col-md-12" ng-if="vm.isInteracted(form.address1)" ng-messages="form.address1.$error">
+                <div ng-messages-include="app/layout/_ng-messages.html"></div>
+              </div>
+            </div>
+            <!-- Text Address 2 -->
+            <div class="form-group">
+              <div class="col-sm-12">
+                  <textarea name="address2" rows="6" placeholder="Address 2" class="form-control" ng-model="vm.model._address.address2"></textarea>
+              </div>
+            </div>
+            <!-- Text City & ZipCode -->
+            <div class="form-group">
+                <div class="col-sm-6" ng-class="vm.getFormClass(form.city)">
+                    <input type="text" placeholder="City" class="form-control" ng-model="vm.model._address.city" name="city" required>
+                    <div ng-if="vm.isInteracted(form.city)" ng-messages="form.city.$error">
+                      <div ng-messages-include="app/layout/_ng-messages.html"></div>
+                    </div>
+                </div>
+                <div class="col-sm-6" ng-class="vm.getFormClass(form.zipcode)">
+                    <input id="postcode" type="text" placeholder="Zip Code" class="form-control" ng-model="vm.model._address.zipcode" name="zipcode" required>
+                    <div ng-if="vm.isInteracted(form.zipcode)" ng-messages="form.zipcode.$error">
+                      <div ng-messages-include="app/layout/_ng-messages.html"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Text Additional -->
+            <div class="form-group">
+              <div class="col-sm-12">
+                  <textarea name="additional_info" rows="6" placeholder="Additional info" class="form-control" ng-model="vm.model._address.additional"></textarea>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-sm-12">
+                <button class="btn btn-primary btn-block" type="submit">
+                  Proceed To Pick Up Schedule
+                </button>
+              </div>
+            </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+</div>

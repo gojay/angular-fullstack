@@ -16,7 +16,7 @@ var AppointmentSchema = new Schema({
         required: true*/
     },
     name: String,
-    email: String,
+    email: { type: String, lowercase: true },
     phone: String,
     address: Schema.Types.Mixed,
     person: {
@@ -89,7 +89,8 @@ AppointmentSchema.statics = {
 
     getDisabledPickup(params, format = 'DD-MM-YYYY') {
         return this.aggregate([
-            { $match: params },
+            // { $match: params },
+            { $match: { status: { $lte: 1 } } },
             { $group: { _id: '$pickuptime' } },
             { $sort: { _id: 1 } },
             { $project: { _id: 0, date: '$_id' } }
@@ -157,25 +158,46 @@ AppointmentSchema.statics = {
                     });
             }
         }
-        // create user
+        // return user
         else {
+            // var address = body.address || body._address;
+            // if (address) {
+            //     appointment.address = address;
+            //     body.user.address = _.isArray(address) ? address : [address];
+            // }
+            // userAsync = Promise.resolve(User.create(body.user));
+            
             var address = body.address || body._address;
             if (address) {
                 appointment.address = address;
-                body.user.address = _.isArray(address) ? address : [address];
             }
-            userAsync = Promise.resolve(User.create(body.user));
+            userAsync = Promise.resolve(body.user);
         }
 
         return userAsync.then((user) => {
             if (!user) throw new Error('User not found!');
-            appointment.user  = user._id;
+            if(user._id) {
+                appointment.user = user._id;
+            }
             appointment.name  = user.name;
             appointment.email = user.email;
             appointment.phone = user.phone;
             appointment.service.id = mongoose.Types.ObjectId(appointment.service.id);
             return this._createWithGenerateCode(appointment);
         });
+    },
+
+    setUser(body) {
+        if(!body || !body.id) throw new Error('Appointment id required!');
+        if(!body.user) throw new Error('Appointment user required!');
+
+        return this.findByIdAsync(body.id)
+            .then((appointment) => {
+                if(!appointment) throw new Error('Appointment not found!!');
+                if(appointment.user || appointment.email != body.user.email) throw new Error('Appointment not match with this user!!');
+                appointment.user = body.user._id;
+                return appointment.saveAsync();
+            });
     }
 };
 

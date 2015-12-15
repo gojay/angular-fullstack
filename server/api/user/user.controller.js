@@ -5,6 +5,8 @@ import passport from 'passport';
 import config from '../../config/environment';
 import jwt from 'jsonwebtoken';
 
+import Appointment from '../appointment/appointment.model';
+
 function validationError(res, statusCode) {
   statusCode = statusCode || 422;
   return function(err) {
@@ -42,15 +44,27 @@ exports.index = function(req, res) {
  * Creates a new user
  */
 exports.create = function(req, res, next) {
-  var newUser = new User(req.body);
+  var body = req.body;
+  var userData = _.omit(body, 'appointment');
+
+  var newUser = new User(userData);
   newUser.provider = 'local';
-  newUser.role = 'user';
   newUser.saveAsync()
     .spread(function(user) {
-      var token = jwt.sign({ _id: user._id }, config.secrets.session, {
-        expiresInMinutes: 60 * 5
+      var before = Promise.resolve('skip');
+      // update user appointment
+      if(body.appointment) {
+        before = Appointment.setUser({ id: body.appointment, user: user })
+      }
+      // generate token
+      return before.then(() => {
+        return jwt.sign({ _id: user._id }, config.secrets.session, {
+          expiresInMinutes: 60 * 5
+        });
       });
-      res.json({ token: token });
+    })
+    .then((token) => {
+      res.status(200).json({ token: token });
     })
     .catch(validationError(res));
 };

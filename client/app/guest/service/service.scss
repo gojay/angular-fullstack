@@ -1,5 +1,8 @@
+$gray-color: #e7e7e7;
+$green-color: #4cae4c;
 $blue-color: #2196F3;
 $blue-light-color: #BBDEFB;
+$invalid-color: #a94442;
 
 /***
 Bootstrap Line Tabs by @keenthemes
@@ -102,6 +105,112 @@ Licensed under MIT
 }
 
 #appointment {
+
+    legend {
+      border-bottom: none;
+      text-align: center;
+    }
+
+    /* step 1 : pickup */
+
+    #step-1 {
+
+      h2, h3 {
+        margin-bottom: 25px;
+      }
+
+      h3 { 
+        font-weight: normal;
+      }
+
+      .input-group {
+        input {
+          border-right: none;
+        }
+        .input-group-btn > button {
+          height: 34px;
+        }
+      }
+
+      .search {
+        .input-group {
+          .input-group-btn > button {
+            background-color: #fff;
+            border-left: none;
+          }
+        }
+      }
+
+      .has-error {
+        input.ng-invalid + .input-group-btn > button {
+          border-top: 1px solid $invalid-color;
+          border-right: 1px solid $invalid-color;
+          border-bottom: 1px solid $invalid-color;
+        }
+      }
+    }
+
+    /* end step 1 */
+
+
+    /* step 3 : pickup */
+
+    #step-3 {
+
+      .datepicker {
+        button {
+          border: none;
+          padding: 10px;
+        }
+        button[role="heading"],
+        button > i.glyphicon {
+          font-size: 2em;
+        }
+        button.active {
+          background-color: #fff;
+          border: 2px solid $green-color;
+          border-radius: 0;
+          box-shadow: none;
+          color: #333;
+        }
+        tbody td {
+          border: 1px solid $gray-color;
+        }
+        .unavailable > button > span::after {
+          content: 'Unavailable';
+          display: block;
+        }
+        .available > button > span::after {
+          content: 'Available';
+          display: block;
+        }
+      }
+
+      .detail {
+        padding: 15px 30px;
+        border: 1px solid #e7e7e7;
+
+        .row > .col-md-12 {
+          margin-bottom: 10px;
+        }
+
+        label.title {
+          color: #777;
+          font-weight: normal;
+          font-size: 1em;
+          border-bottom: 1px solid $gray-color;
+          padding-bottom: 10px;
+          width: 100%;
+        }
+
+        p.big {
+          font-size: 2em;
+        }
+      }
+    }
+    
+    /* end step 3 */
+
 
     .blue {
         color: $blue-color;

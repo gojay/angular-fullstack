@@ -123,7 +123,9 @@ exports.destroy = function(req, res) {
 exports.getDisabledPickup = function(req, res) {
   var user = req.user;
   var format = req.query.format;
-  Appointment.getDisabledPickup({ user: user._id }, format)
+  Appointment.getDisabledPickup({}, format)
     .then(responseWithResult(res))
     .catch(handleError(res));
 }
+
+exports

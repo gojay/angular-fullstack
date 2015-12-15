@@ -7,7 +7,7 @@ import Seed from '../../config/seed';
 
 const PRICES = [10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000];
 
-describe.only('Service Model :', function() {
+describe('Service Model :', function() {
   this.timeout(600000);
 
   it('should seed services', (done) => {
