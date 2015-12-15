@@ -2,7 +2,7 @@
     'use strict';
 
     class ServiceCtrl {
-        constructor($scope, $state, $q, $timeout, Auth, OurService, Appointment, logger, Modal) {
+        constructor($scope, $state, $q, $timeout, $filter, Auth, OurService, Appointment, logger, Modal, CONFIG) {
             this.$state = $state;
             this.$q = $q;
             this.$timeout = $timeout;
@@ -10,6 +10,7 @@
             this.Appointment = Appointment;
             this.logger = logger;
             this.Modal = Modal;
+            this.$filter = $filter;
 
             this.title = {};
 
@@ -23,13 +24,18 @@
             this.config = {
                 mode: 0, // column, tab, modal
                 summary: {},
-                appointment: true,
+                appointment: false,
                 loading: false,
                 calculating: false,
                 submitted: false,
+                coverage: {
+                    region: CONFIG.service.region.map((item) => { item.name = item.name.toLowerCase(); return item; }),
+                    area: null
+                },
+                cities: CONFIG.cities,
                 datePicker: {
                 	today: moment().format('dddd, DD MMM YYYY').toString(),
-                	times: [{ name: 10, title: '10AM'}, { name: 14, title: '2AM'}, { name: 17, title: '5AM'}],
+                	times: CONFIG.service.times,
                     minDate: moment().add(1, 'd').toDate(),
                     format: 'dd-MMMM-yyyy',
                     options: {
@@ -40,12 +46,18 @@
                 }
             };
 
+            this.model.pickup = {
+                date: this.config.datePicker.minDate,
+                time: this.config.datePicker.times[0],
+            };
+
             this._getOurService().then((data) => {
                 angular.extend(this.all, data);
                 this.items = data;
             });
 
             $scope.$on('$stateChangeSuccess', (env, to) => {
+                this.config.submitted = false;
                 // if (/appointment/.test(to.name) && _.isEmpty(this.services)) {
                 //     this.$state.go('service');
                 //     return;
@@ -90,6 +102,7 @@
 
                 var item = _.last(nv);
                 var service_type = _.first(nv).name;
+                // repairs
                 if (service_type.toLowerCase() == 'repairs') {
                     switch (nv.length) {
                     case 1:
@@ -104,7 +117,7 @@
                     case 3:
                         if (item.parent) {
                             this.config.summary['Brand'] = item.parent;
-                            item.name = `${item.parent} ${item.name}`;
+                            // item.name = `${item.parent} ${item.name}`;
                             delete item.parent;
                         }
                         this.title.header = 'Select Device Issue';
@@ -115,7 +128,9 @@
                         this.config.summary['Issue'] = item.name;
                         break;
                     }
-                } else if (/^setup/i.test(service_type)) {
+                } 
+                // setup & installations
+                else if (/^setup/i.test(service_type)) {
                     switch (nv.length) {
                     case 1:
                         this.title.header = item.name;
@@ -256,10 +271,12 @@
             }
         }
 
-        isActive(stepNumber) {
+        /* Appointment state */
+
+        isActive(stepNumber, match = false) {
             var step = parseInt(stepNumber.match(/\d/)[0]);
             var currentStep = parseInt(this.$state.current.name.match(/\d/)[0]);
-            return step <= currentStep;
+            return (match) ? step == currentStep : step <= currentStep ;
         }
         goTo(nextStep) {
             if (nextStep == 'step0') {
@@ -270,14 +287,36 @@
             }
         }
 
-        /* Appointment Form */
+        getHeaderService() {
+            if(_.isEmpty(this.config.summary)) return '';
+            var header = _.values(_.omit(this.config.summary, ['Brand']));
+            if(this.model.service.estimate_price) {
+                header.push(this.$filter('currency')(this.model.service.estimate_price, 'IDR ', 0));
+            }
+            return header.join(', ');
+        }
+
+        /* Appointment Step 1 : Coverage Area */
+
+        getCoverage(form) {
+            this.config.submitted = true;
+            if(form.$valid) {
+                this.model.area = this.$filter('filter')(this.config.coverage.region, this.config.coverage.area.toLowerCase(), true)[0];
+                this.logger.log('area', this.model.area, this.config.coverage);
+            }
+        }
+
+        notifyArea() {
+
+        }
+
+        /* Appointment Step 2 : Form */
 
         getFormClass(field) {
             if (field.$dirty || this.config.submitted) return field.$valid ? 'has-success' : 'has-error';
             return null;
         }
         isInteracted(field) {
-        	console.log('field', field)
             return this.config.submitted || field.$dirty;
         }
         nextStep(form, nextStep) {
@@ -287,10 +326,11 @@
             this.$state.go(`service.appointment.${nextStep}`);
         }
 
-        /* Appointment Step 2 : Date Picker */
+        /* Appointment Step 3 : Pickup time (datepicker) */
 
         getSelectedPickup(format = 'dddd, DD MMM YYYY') {
-        	return moment(this.model.pickuptime).format(format).toString();
+            if(!this.model.pickup.date) return '';
+        	return moment(this.model.pickup.date).format(format).toString();
         }
 
         _getDisabledDP() {
@@ -321,28 +361,19 @@
         }
         getDayClassDP(date, mode) {
         	var d = moment(date).format('DD-MM-YYYY');
-            var isDisabled = (date.getDay() === 0 || date.getDay() === 6) || this.config.datePicker.disabled.indexOf(d) > -1;
+            var isDisabled = (date.getDay() === 0 || date.getDay() === 6) || moment(date).isBefore(moment()) || this.config.datePicker.disabled.indexOf(d) > -1;
             return isDisabled ? 'unavailable' : 'available';
         }
 
-        /* Appointment Step 3 */
-
-        getAppointmentDate() {
-            return moment().format('MMMM DD, YYYY');
-        }
-
-        getOrderSummary() {
-            return _.filter(this.model.service.items, (service) => {
-                return service.price > 0;
-            });
-        }
+        /* booking */
 
         bookAppointment() {
-            this.logger.info('Appointment', 'Booking', this.model);
+            this.model.pickuptime = moment(this.model.pickup.date).hours(this.model.pickup.time.h).minutes(0).seconds(0).toDate();
+            this.logger.log('booking', _.omit(this.model, 'pickup'));
         }
     }
 
-    ServiceCtrl.$inject = ['$scope', '$state', '$q', '$timeout', 'Auth', 'OurService', 'Appointment', 'logger', 'Modal'];
+    ServiceCtrl.$inject = ['$scope', '$state', '$q', '$timeout', '$filter', 'Auth', 'OurService', 'Appointment', 'logger', 'Modal', 'CONFIG'];
 
     angular.module('app.guest')
         .controller('ServiceCtrl', ServiceCtrl);

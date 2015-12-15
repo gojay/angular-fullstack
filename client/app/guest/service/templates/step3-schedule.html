@@ -4,14 +4,14 @@
     <h3 class="text-center">Select your pickup date and time</h3>
     <div class="row margin-top-bottom-lg">
         <div class="col-md-8">
-            <datepicker class="datepicker" ng-model="vm.model.pickuptime"
-                min-date="vm.config.datePicker.minDate.toDate()" show-weeks="false"
+            <datepicker class="datepicker" ng-model="vm.model.pickup.date"
+                min-date="vm.config.datePicker.minDate" show-weeks="false"
                 datepicker-options="vm.config.datePicker.options"
                 date-disabled="vm.disabledDP(date, mode)"
                 custom-class="vm.getDayClassDP(date, mode)">
             </datepicker>
         </div>
-        <div class="col-md-4 detail">
+        <form class="col-md-4 detail" ng-submit="vm.bookAppointment()">
             <div class="row">
                 <div class="col-md-12">
                     <label class="title">Today</label>
@@ -20,13 +20,13 @@
                 <div class="col-md-12">
                     <label class="title">Pick Up Date</label>
                     <p class="big">{{vm.getSelectedPickup('dddd')}}</p>
-                    <p class="big">{{vm.getSelectedPickup('d MMM')}}</p>
+                    <p class="big">{{vm.getSelectedPickup('DD MMM')}}</p>
                 </div>
                 <div class="col-md-12">
                     <label class="title">Pick Up Time</label>
-                    <div class="radio" ng-repeat="time in vm.config.datePicker.times">
+                    <div class="radio" ng-repeat="time in vm.config.datePicker.times" required>
                         <label>
-                            <input type="radio" name="{{time.name}}" ng-value="time.name">
+                            <input type="radio" name="time" ng-model="vm.model.pickup.time" ng-value="time">
                             {{time.title}}
                         </label>
                     </div>
@@ -37,6 +37,6 @@
                     </button>
                 </div>
             </div>
-        </div>
+        </form>
     </div>
 </div>

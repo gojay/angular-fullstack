@@ -1,8 +1,11 @@
 <!-- STEP 2 -->
 <div class="row" id="step-1">
-  <div class="col-md-8 col-center">
+  <div class="col-md-12 header-signin" ng-if="vm.isActive('step2')">
+      <h3>Book Appointment</h3>
+      <p>Already have an account?</p>
+  </div>
+  <div class="col-md-6 col-center">
     <form class="form-horizontal" name="form" ng-submit="vm.nextStep(form, 'step3')" novalidate>
-      <fieldset>
         <legend>Contact Information</legend>
         <div class="row setup-content">
             <!-- Text Name -->
@@ -43,7 +46,7 @@
         <legend>Pickup Location</legend>
         <div class="row setup-content">
             <!-- Text Address 1 -->
-            <div class="form-group">
+            <div class="form-group" ng-class="vm.getFormClass(form.address1)">
               <div class="col-sm-12">
                   <textarea name="address1" rows="1" placeholder="Address 1" class="form-control" ng-model="vm.model._address.address1" required></textarea required>
               </div>
@@ -54,13 +57,15 @@
             <!-- Text Address 2 -->
             <div class="form-group">
               <div class="col-sm-12">
-                  <textarea name="address2" rows="6" placeholder="Address 2" class="form-control" ng-model="vm.model._address.address2"></textarea>
+                  <textarea name="address2" rows="1" placeholder="Address 2" class="form-control" ng-model="vm.model._address.address2"></textarea>
               </div>
             </div>
             <!-- Text City & ZipCode -->
-            <div class="form-group">
+            <div class="form-group has-feedback">
                 <div class="col-sm-6" ng-class="vm.getFormClass(form.city)">
-                    <input type="text" placeholder="City" class="form-control" ng-model="vm.model._address.city" name="city" required>
+                    <input type="text" placeholder="City" class="form-control" ng-model="vm.model._address.city" name="city" required
+                      typeahead="city for city in vm.config.cities | filter:$viewValue | limitTo:8">
+                    <i class="glyphicon glyphicon-search form-control-feedback"></i>
                     <div ng-if="vm.isInteracted(form.city)" ng-messages="form.city.$error">
                       <div ng-messages-include="app/layout/_ng-messages.html"></div>
                     </div>
@@ -75,7 +80,7 @@
             <!-- Text Additional -->
             <div class="form-group">
               <div class="col-sm-12">
-                  <textarea name="additional_info" rows="6" placeholder="Additional info" class="form-control" ng-model="vm.model._address.additional"></textarea>
+                  <textarea name="additional_info" rows="3" placeholder="Additional info" class="form-control" ng-model="vm.model._address.additional"></textarea>
               </div>
             </div>
             <div class="form-group">
@@ -86,7 +91,6 @@
               </div>
             </div>
         </div>
-      </fieldset>
     </form>
   </div>
 </div>

@@ -11,7 +11,7 @@ angular.module('app.guest')
       })
 	      .state('service.appointment', {
 	        url: '/appointment',
-        	templateUrl: 'app/guest/service/templates/appointment.html',
+        	templateUrl: 'app/guest/service/templates/appointment.html'
 	      })
 		      .state('service.appointment.step1', {
 		        url: '/step1',
