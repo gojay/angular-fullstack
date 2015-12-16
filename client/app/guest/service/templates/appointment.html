@@ -3,22 +3,22 @@
 <div class="stepwizard">
     <div class="stepwizard-row setup-panel">
         <div class="stepwizard-step">
-            <a ng-click="vm.goTo('step0')" class="btn btn-circle" ng-class="{false:'btn-default', true:'btn-primary'}[vm.isActive('step0')]">
+            <a ui-sref="book.service" class="btn btn-circle btn-primary">
                 <i class="fa fa-wrench"></i>
             </a>
             <p>Service</p>
         </div>
         <div class="stepwizard-step">
             <a ui-sref="service.appointment.step1" type="button" class="btn btn-circle" ng-class="{false:'btn-default', true:'btn-primary'}[vm.isActive('step1')]">1</a>
-            <p>Step 1</p>
+            <p>Area</p>
         </div>
         <div class="stepwizard-step">
             <a ui-sref="service.appointment.step2" type="button" class="btn btn-default btn-circle" ng-class="{false:'btn-default', true:'btn-primary'}[vm.isActive('step2')]" ng-disabled="!vm.isActive('step2')">2</a>
-            <p>Step 2</p>
+            <p>Contact & Location</p>
         </div>
         <div class="stepwizard-step">
             <a ui-sref="service.appointment.step3" type="button" class="btn btn-default btn-circle" ng-class="{false:'btn-default', true:'btn-primary'}[vm.isActive('step3')]" ng-disabled="!vm.isActive('step3')">3</a>
-            <p>Step 3</p>
+            <p>Schedule</p>
         </div>
     </div>
 </div>
@@ -26,14 +26,14 @@
 <div class="row">
     <div class="col-md-12 header-history">
         <div class="row">
-            <div class="col-md-6 cursor" ng-click="vm.config.appointment = false">
+            <div class="col-md-6 cursor" ui-sref="book.service">
                 <div class="row">
                     <div class="col-md-2">
                         <i class="fa fa-long-arrow-left fa-2x"></i>
                     </div>
                     <div class="col-md-10">
                         <h4>Service Details</h4>
-                        <p>{{vm.getHeaderService()}}</p>
+                        <p>{{vm.getServiceDetails()}}</p>
                     </div>
                 </div>
             </div>

@@ -22,12 +22,17 @@
             this.isCustomer = Auth.isCustomer;
 
             this.config = {
+                is: 'service',
                 mode: 0, // column, tab, modal
-                summary: {},
-                appointment: false,
                 loading: false,
                 calculating: false,
                 submitted: false,
+                service: {
+                    end: false,
+                    details: {},
+                    summary: {},
+                    history: []
+                },
                 coverage: {
                     region: CONFIG.service.region.map((item) => { item.name = item.name.toLowerCase(); return item; }),
                     area: null
@@ -58,11 +63,15 @@
 
             $scope.$on('$stateChangeSuccess', (env, to) => {
                 this.config.submitted = false;
-                // if (/appointment/.test(to.name) && _.isEmpty(this.services)) {
-                //     this.$state.go('service');
-                //     return;
-                // }
-                // this._getDisabledDP();
+                if(/^book.service/.test(to.name)) {
+                    this.config.is = 'service';
+                } else if(/^book.appointment/.test(to.name)) {
+                    this.config.is = 'appointment';
+                    if (_.isEmpty(this.services)) {
+                        return this.$state.go('book.service');
+                    }
+                }
+                this._getDisabledDP();
             });
 
             var unWatchServices = $scope.$watch(() => this.services, this._getTitle(), true);
@@ -101,10 +110,12 @@
                 }
 
                 var item = _.last(nv);
-                var service_type = _.first(nv).name;
+                var type = _.first(nv).name;
+                var history = this.config.service.history;
                 // repairs
-                if (service_type.toLowerCase() == 'repairs') {
+                if (type.toLowerCase() == 'repairs') {
                     switch (nv.length) {
+                    case 0:
                     case 1:
                         this.title.header = 'Device Repair';
                         this.title.guide = 'Select your device';
@@ -112,36 +123,48 @@
                     case 2:
                         this.title.header = `${item.name} Repair`;
                         this.title.guide = `Select your ${item.name.toLowerCase()}`;
-                        this.config.summary['Device'] = item.name;
+                        this.config.service.details['Device'] = this.config.service.summary['Device'] = item.name;
+                        // push history, from previous service
+                        if(!_.find(history, 'key', 'Device')) {
+                            history.push({ key: 'Device', value: item.name, previous: nv[0] });
+                        }
                         break;
                     case 3:
-                        if (item.parent) {
-                            this.config.summary['Brand'] = item.parent;
-                            // item.name = `${item.parent} ${item.name}`;
-                            delete item.parent;
-                        }
                         this.title.header = 'Select Device Issue';
                         this.title.guide = `${item.name}`;
-                        this.config.summary['Model'] = item.name;
+                        if (item.parent) {
+                            this.config.service.summary['Brand'] = item.parent;
+                            item.name = `${item.parent} ${item.name}`;
+                            delete item.parent;
+                        }
+                        this.config.service.summary['Model'] = this.config.service.details['Model'] = item.name;
+                        // push history, from previous service
+                        if(!_.find(history, 'key', 'Model')) {
+                            history.push({ key: 'Model', value: item.name, previous: nv[1] });
+                        }
                         break;
                     case 4:
-                        this.config.summary['Issue'] = item.name;
+                        this.config.service.details['Issue'] = this.config.service.summary['Issue'] = item.name;
+                        // push history, from previous service
+                        if(!_.find(history, 'key', 'Issue')) {
+                            history.push({ key: 'Issue', value: item.name, previous: nv[2] });
+                        }
                         break;
                     }
                 } 
                 // setup & installations
-                else if (/^setup/i.test(service_type)) {
+                else if (/^setup/i.test(type)) {
                     switch (nv.length) {
                     case 1:
                         this.title.header = item.name;
                         this.title.guide = '';
                         break;
                     case 2:
-                        this.config.summary['Setup'] = item.name;
+                        this.config.service.summary['Setup'] = item.name;
                         break;
                     case 3:
                         if (item.parent) {
-                            this.config.summary['Type'] = `${item.parent} - ${item.name}`;
+                            this.config.service.summary['Type'] = `${item.parent} - ${item.name}`;
                             delete item.parent;
                         }
                         break;
@@ -164,11 +187,10 @@
                 params.reference = referenceService._id;
             }
 
-            // this.logger.log('estimate_price', params);
-
             this.config.calculating = true;
             return this.OurService.calculate(params).$promise.then((result) => {
-                angular.extend(this.model.service, result);
+                angular.extend(this.model.service, _.pick(result, ['id', 'estimate_price', 'items', 'reference', 'step']));
+                this.config.service.details['Price'] = this.$filter('currency')(this.model.service.estimate_price, 'IDR ', 0);
             }).catch((err) => {
                 this.logger.error('Failed', 'calculating estimate price', err);
             }).finally(() => {
@@ -198,13 +220,20 @@
             this.items = item.children;
 
             // check duplicate, add to service
-            if (!_.find(this.services, '_id', item._id)) {
-                var next = _.pick(item, ['_id', 'name', 'mode', 'children', 'reference']);
-                if (parent) next.parent = parent.name;
-                this.services.push(next);
-            }
+            // if (!_.find(this.services, '_id', item._id)) {
+            var next = {
+                _id: item._id,
+                name: item.name,
+                mode: item.mode,
+                children: item.children,
+                reference: item.reference,
+            };
+            if (parent) next.parent = parent.name;
+            this.services.push(next);
+            this.services = _.uniq(this.services, '_id');
+            // }
 
-            // end
+            // end service
             if (_.isEmpty(this.items)) {
                 // get the reference services
                 // show the references in tabs
@@ -222,10 +251,10 @@
                 // get estimate price
                 this.title.header = 'Service Summary';
                 this.title.guide = null;
-                this.config.endService = true;
+                this.config.service.end = true;
                 this._calcServiceEstimatePrice();
             } else {
-                this.config.endService = false;
+                this.config.service.end = false;
             }
         }
 
@@ -245,13 +274,14 @@
             // add to services
             this._addToService(item, parent);
         }
-        getServiceParent(item) {
-            this.config.endService = false;
+        getServiceParent(item, index) {
+            this.config.service.end = false;
 
             if (item === 'all') {
                 this.items = this.all;
                 this.services = [];
-                this.config.summary = {};
+                this.config.service.summary = {};
+                this.config.service.history = [];
                 this.config.mode = 0;
                 return;
             }
@@ -260,18 +290,23 @@
             this.config.mode = item.mode;
 
             if (_.last(this.services)._id == item._id) return;
-            var is = _.findIndex(this.services, {
-                _id: item._id
-            });
+
+            var is = _.findIndex(this.services, '_id', item._id);
             if (is > -1) {
+                // set items
                 this.items = angular.extend({}, this.services[is].children);
-                _.remove(this.services, (n, k) => {
-                    return k > is;
-                });
+                // remove selected services
+                _.remove(this.services, (n, k) => {  return k > is; });
+                // remove history
+                // find index by previous id
+                if(angular.isUndefined(index)) {
+                    index = _.findIndex(this.config.service.history, 'previous._id', item._id);
+                }
+                this.config.service.history.splice(index, this.config.service.history.length);
             }
         }
 
-        /* Appointment state */
+        /* Appointment */
 
         isActive(stepNumber, match = false) {
             var step = parseInt(stepNumber.match(/\d/)[0]);
@@ -279,21 +314,12 @@
             return (match) ? step == currentStep : step <= currentStep ;
         }
         goTo(nextStep) {
-            if (nextStep == 'step0') {
-                this.config.appointment = false;
-            } else {
-                this.config.appointment = true;
-                this.$state.go(`service.appointment.${nextStep}`);
-            }
+            this.$state.go(`book.appointment.${nextStep}`);
         }
 
-        getHeaderService() {
-            if(_.isEmpty(this.config.summary)) return '';
-            var header = _.values(_.omit(this.config.summary, ['Brand']));
-            if(this.model.service.estimate_price) {
-                header.push(this.$filter('currency')(this.model.service.estimate_price, 'IDR ', 0));
-            }
-            return header.join(', ');
+        getServiceDetails() {
+            if(_.isEmpty(this.config.service.details)) return '';
+            return _.values(this.config.service.details).join(', ');
         }
 
         /* Appointment Step 1 : Coverage Area */
@@ -302,7 +328,6 @@
             this.config.submitted = true;
             if(form.$valid) {
                 this.model.area = this.$filter('filter')(this.config.coverage.region, this.config.coverage.area.toLowerCase(), true)[0];
-                this.logger.log('area', this.model.area, this.config.coverage);
             }
         }
 
@@ -323,7 +348,7 @@
             this.config.submitted = true;
             if (form.$invalid) return;
             this.config.submitted = false;
-            this.$state.go(`service.appointment.${nextStep}`);
+            this.$state.go(`book.appointment.${nextStep}`);
         }
 
         /* Appointment Step 3 : Pickup time (datepicker) */

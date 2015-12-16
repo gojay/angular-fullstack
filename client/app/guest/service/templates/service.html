@@ -1,0 +1,134 @@
+<div class="row">
+    <div class="col-md-12 float-none">
+        <!-- step -->
+        <div class="stepwizard-flex-container">
+            <div class="stepwizard-flex">
+                <div class="stepwizard-step" ng-click="vm.getServiceParent('all')">
+                    <!-- <ionic-letter-avatar data="Services" shape="round" charcount="2"></ionic-letter-avatar> -->
+                    <!-- <p>Services</p> -->
+                    <span class="fa-stack fa-2x wh50">
+                      <i class="fa fa-circle fa-stack-2x blue"></i>
+                      <i class="fa fa-wrench fa-stack-1x fa-inverse" style="color:white"></i>
+                    </span>
+                    <p>Services</p>
+                </div>
+                <div class="stepwizard-step cursor slide-left" ng-repeat="service in vm.services" ng-click="vm.getServiceParent(service)">
+                    <ionic-letter-avatar data="{{service.name}}" shape="round"></ionic-letter-avatar>
+                    <p>{{service.name}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-12 header-history" ng-if="vm.config.service.history.length">
+        <div class="row">
+            <div class="col-md-3 cursor" ng-repeat="history in vm.config.service.history" ng-click="vm.getServiceParent(history.previous, $index)">
+                <div class="row">
+                    <div class="col-md-2" ng-if="$first">
+                        <i class="fa fa-long-arrow-left fa-2x"></i>
+                    </div>
+                    <div class="col-md-10">
+                        <h4>{{history.key}}</h4>
+                        <p>{{history.value}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <!-- title -->
+        <h3 class="text-center">{{vm.title.header}}</h3>
+        <h5 class="text-center">{{vm.title.guide}}</h5>
+        <!-- loading -->
+        <div class="text-center margin-top-bottom-lg" ng-if="!vm.items.length && vm.config.loading">
+            <i class="fa fa-circle-o-notch fa-spin"></i>
+            Loading...
+        </div>
+        <!-- service -->
+        <div class="row margin-top-bottom-lg">
+            <div class="item-service slide-left" ng-repeat="item in vm.items" ng-class="vm.getColumnClass(vm.items)" ng-click="vm.getServiceChildren(item)" ng-if="vm.config.mode == 0">
+                <div class="center">
+                    <ionic-letter-avatar data="{{item.name}}" shape="round" ng-if="!item.picture"></ionic-letter-avatar>
+                    <img ng-src="{{item.picture}}" ng-if="item.picture">
+                    <h4>{{item.name}}</h4>
+                    <p class="col-md-8 col-center">{{item.description}}</p>
+                </div>
+            </div>
+            <div class="col-md-12" ng-if="vm.config.mode == 1">
+                <div class="tabbable-panel">
+                    <div class="tabbable-line">
+                        <tabset>
+                            <tab ng-repeat="tab in vm.items" heading="{{tab.name}}">
+                                <div class="item-service" ng-repeat="item in tab.children" ng-class="vm.getColumnClass(tab.children)" ng-click="vm.getServiceChildren(item, tab)" ng-if="vm.config.mode == 1">
+                                    <div class="center" ng-if="item.name != 'General'">
+                                        <ionic-letter-avatar data="{{item.name}}" shape="round" width="50" height="50" ng-if="!item.picture"></ionic-letter-avatar>
+                                        <img ng-src="{{item.picture}}" ng-if="item.picture">
+                                        <h4 ng-class="{'margin-top-zero': item.picture}">{{item.name}}</h4>
+                                        <p class="col-md-8 col-center">{{item.description}}</p>
+                                    </div>
+                                    <div class="center" ng-if="item.name == 'General'">
+                                        <h4 class="col-md-8 col-center">{{item.description}}</h4>
+                                    </div>
+                                </div>
+                            </tab>
+                        </tabset>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- summary -->
+        <div class="row margin-top-bottom-lg" ng-if="vm.config.service.end">
+            <div class="col-sm-6">
+                <div class="list-group">
+                    <div class="list-group-item" ng-repeat="(key, value) in vm.config.service.summary">
+                        <h4 class="list-group-item-heading">{{key}}</h4>
+                        <p class="list-group-item-text">{{value}}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <form class="form-horizontal">
+                    <fieldset>
+                        <div class="row setup-content" id="step-0">
+                            <div class="col-sm-12">
+                                <!-- Price estimate -->
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="textinput">Price estimate</label>
+                                    <div class="col-sm-8">
+                                        <h3 class="price">
+                                            <span ng-if="vm.config.calculating">calculating...</span>
+                                            <span ng-if="!vm.config.calculating">{{ vm.model.service.estimate_price | currency: 'IDR ':0 }}</span>
+                                        </h3>
+                                    </div>
+                                </div>
+                                <!-- Text additional -->
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" for="textinput">Additional info</label>
+                                    <div class="col-sm-8">
+                                        <div class="input-group">
+                                            <textarea rows="3" placeholder="Additional info" class="form-control" ng-model="vm.model.service.additional" required></textarea>
+                                            <span class="input-group-addon bg-success"><i class="fa fa-comment fa-lg text-white"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary btn-block" ng-click="vm.goTo('step1')" ng-disabled="!vm.model.service.estimate_price" type="button">
+                                    Proceed To Booking
+                                </button>
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- screen size -->
+<script type="text/ng-template" id="select-screen-size.html">
+    <ul class="list-unstyled">
+        <li ng-repeat="list in model">
+            <a class="btn btn-link" ng-click="$close(list)">{{list.name}}</a>
+        </li>
+    </ul>
+</script>

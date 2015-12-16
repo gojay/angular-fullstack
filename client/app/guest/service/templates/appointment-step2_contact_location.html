@@ -11,7 +11,7 @@
             <!-- Text Name -->
             <div class="form-group" ng-class="vm.getFormClass(form.name)">
                 <div class="col-sm-12">
-                    <input autocomplete="on" type="text" placeholder="Full Name" class="form-control" ng-model="vm.model.user.name" name="name" required>
+                    <input autocomplete="off" type="text" placeholder="Full Name" class="form-control" ng-model="vm.model.user.name" name="name" required>
                 </div>
                 <div class="col-md-12" ng-if="vm.isInteracted(form.name)" ng-messages="form.name.$error">
                   <div ng-messages-include="app/layout/_ng-messages.html"></div>
@@ -63,7 +63,8 @@
             <!-- Text City & ZipCode -->
             <div class="form-group has-feedback">
                 <div class="col-sm-6" ng-class="vm.getFormClass(form.city)">
-                    <input type="text" placeholder="City" class="form-control" ng-model="vm.model._address.city" name="city" required
+                    <input type="text" autocomplete="off" placeholder="City" class="form-control" name="city" required
+                      ng-model="vm.model._address.city"
                       typeahead="city for city in vm.config.cities | filter:$viewValue | limitTo:8">
                     <i class="glyphicon glyphicon-search form-control-feedback"></i>
                     <div ng-if="vm.isInteracted(form.city)" ng-messages="form.city.$error">

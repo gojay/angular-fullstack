@@ -6,8 +6,8 @@ class NavbarCtrl {
       'title': 'Home',
       'state': 'home'
     },{
-      'title': 'Services',
-      'state': 'service'
+      'title': 'Book Appointment',
+      'state': 'book.service'
     },{
       'title': 'Admin',
       'state': 'admin.dashboard'
