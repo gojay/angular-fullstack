@@ -11,12 +11,13 @@ import faker from 'faker';
 
 describe.only('Appointment Model :', function() {
   this.timeout(600000);
+
 	var appointment;
 
 	const HOUR_TIMES = [10, 14, 17]; // 10AM, 2PM, 5PM
 	const DAYS = [1,2,3]; // 10AM, 2PM, 5PM
 
-	describe('Booking', () => {
+	describe('Appointment', () => {
 	  function getService() {
 	  	return Q.all([
 		  	Service.findOne({ name: 'Front glass replacement' }).select('_id').execAsync(),
@@ -36,13 +37,15 @@ describe.only('Appointment Model :', function() {
 	  		phone: faker.phone.phoneNumberFormat()
 	  	};
 	  	var address = {
+	  		address1: faker.address.streetName(),
+	  		address1: '',
 	  		city: faker.address.city(),
-		    street: [faker.address.streetAddress(), faker.address.streetName()].join(' '),
-		    zipcode: faker.address.zipCode()
+		    zipcode: faker.address.zipCode(),
+		    additional: ''
 	  	};
 
 	  	if(params.user) {
-	  		return User.findOne({ role: 'customer' }).select('name email phone').execAsync()
+	  		return User.findOne({ role: 'customer' }).select('name email phone address').execAsync()
 	  			.then((_user_) => {
 	  				if(!_user_) {
 	  					var newUser = new User();
@@ -67,11 +70,11 @@ describe.only('Appointment Model :', function() {
 	  async function buildAppointment(params) {
 	  	var service = await getService();
 	  	var {user, address} = await getUserAndAddress(params);
-	  	var pickuptime  = moment({ h:_.random(HOUR_TIMES), m:0, s:0 }).add(_.random(DAYS), 'd').toDate();
-	  	return {service, user, address, pickuptime};
+	  	var pickup = { time: moment({ h:_.random(HOUR_TIMES), m:0, s:0 }).add(_.random(DAYS), 'd').toDate() };
+	  	return {service, user, address, pickup};
 	  }
 
-	  describe('new user', () => {
+	  describe('Guest', () => {
 		  before((done) => {
 		  	Q.all([
 		  		User.remove({ role: 'customer' }).execAsync(),
@@ -89,11 +92,47 @@ describe.only('Appointment Model :', function() {
 		  	.finally(done);
 		  });
 
-		  it('should has appointment', () => {
+		  it('should has appointment data', () => {
 		  	// console.log(JSON.stringify(appointment, null, 2));
+		  	appointment.should.be.an.instanceOf(Object);
 		  });
 
-		  describe('Booked', () => {
+		  describe('Book failed', () => {
+		  	it('should error if params is empty', () => {
+		  		try {
+		  			Appointment.booking();
+		  		} catch(err) {
+		  			err.should.be.an.instanceOf(Error);
+		  		}
+		  	});
+		  	it('should error if params doesn\'t have user', () => {
+		  		var params = _.omit(appointment, 'user');
+		  		try {
+		  			Appointment.booking(params);
+		  		} catch(err) {
+		  			err.should.be.an.instanceOf(Error);
+		  		}
+		  	});
+		  	it('should error if params doesn\'t have pickup time', () => {
+		  		var params = _.extend({}, appointment);
+		  		params.pickup = {};
+		  		try {
+		  			Appointment.booking(params);
+		  		} catch(err) {
+		  			err.should.be.an.instanceOf(Error);
+		  		}
+		  	});
+		  	it('should error if params doesn\'t have service', () => {
+		  		var params = _.omit(appointment, 'service');
+		  		try {
+		  			Appointment.booking(params);
+		  		} catch(err) {
+		  			err.should.be.an.instanceOf(Error);
+		  		}
+		  	});
+		  });
+
+		  describe('Book success', () => {
 		  	var booked;
 		  	before((done) => {
 			  	Appointment.booking(appointment)
@@ -109,11 +148,15 @@ describe.only('Appointment Model :', function() {
 		  		booked.should.be.an.instanceOf(Object);
 			  });
 
-			  it('should have appointment code', () => {
+			  it('should be booked', () => {
+		  		_.has(booked, '_id').should.be.true;
 			  	booked.code.should.be.an.instanceOf(String);
+			  	booked.contact.name.should.equal(appointment.user.name);
+			  	booked.contact.email.should.equal(appointment.user.email.toLowerCase());
+			  	booked.contact.phone.should.equal(appointment.user.phone);
 			  });
 
-			  it('should not create an account', (done) => {
+			  it('should not create an account / total customer is 0', (done) => {
 			  	_.has(booked, 'user').should.be.false;
 			  	User.count({ role: 'customer' }).execAsync()
 			  		.then((total) => {
@@ -122,14 +165,7 @@ describe.only('Appointment Model :', function() {
 			  		.finally(done);
 			  });
 
-			  it('should be booked', () => {
-			  	booked.name.should.equal(appointment.user.name);
-			  	booked.email.should.equal(appointment.user.email.toLowerCase());
-			  	booked.phone.should.equal(appointment.user.phone);
-			  	booked.address.should.eql(appointment.address);
-			  });
-
-			  describe('create an account after book appointment', () => {
+			  describe('create an account after booking', () => {
 			  	var newUser;
 
 			  	before((done) => {
@@ -143,31 +179,32 @@ describe.only('Appointment Model :', function() {
   					}).finally(done);
 			  	});
 
-			  	it('should account created & have booking id', () => {
-			  		_.has(booked, '_id').should.be.true;
-			  		_.has(newUser, '_id').should.be.true;
-			  		newUser.should.be.an.instanceOf(Object);
+			  	describe('setUser failed', () => {
+
 			  	});
 
-			  	it('should set user to appointment', (done) => {
-			  		Appointment.setUser({ id: booked._id, user: newUser })
-			  			.then((result) => {
-			  				// console.log('appointment', JSON.stringify(result, null, 2));
-			  				result.should.be.an.instanceOf(Object);
-			  			})
-			  			.finally(done);
+			  	describe('setUser success', () => {
+				  	it('should account created & have booking id', () => {
+				  		_.has(booked, '_id').should.be.true;
+				  		_.has(newUser, '_id').should.be.true;
+				  		newUser.should.be.an.instanceOf(Object);
+				  	});
+				  	it('should set user to appointment & total customer = 1', (done) => {
+				  		Appointment.setUser({ id: booked._id, user: newUser }).then((result) => {
+			  				return Appointment.findByIdAsync(booked._id);
+			  			}).then((appointment) => {
+			  				appointment.user.toString().should.be.equal(newUser._id.toString());
+			  			}).catch((err) => console.log('setUser:error', err)).finally(done);
+				  	});
 			  	});
-
 			  });
-
 		  });
 	  });
 
-		describe('returning user', () => {
+		describe('Returning user', () => {
 			var appointment;
 
 			describe('Direct', () => {
-				
 				before((done) => {
 		  		buildAppointment({ user: true }).then((_appointment_) => {
 		  			appointment = _appointment_;
@@ -175,7 +212,8 @@ describe.only('Appointment Model :', function() {
 				});
 
 				it('should has appointment', () => {
-			  	// console.log(JSON.stringify(appointment, null, 2));
+			  	// console.log('returning user Direct', JSON.stringify(appointment, null, 2));
+		  		appointment.should.be.an.instanceOf(Object);
 			  });
 
 			  describe('Booked', () => {
@@ -194,19 +232,17 @@ describe.only('Appointment Model :', function() {
 			  		booked.should.be.an.instanceOf(Object);
 				  });
 
-				  it('should have appointment code', () => {
-				  	booked.code.should.be.an.instanceOf(String);
-				  });
-
 				  it('should be booked', () => {
+			  		_.has(booked, '_id').should.be.true;
+				  	booked.code.should.be.an.instanceOf(String);
 				  	booked.user.toString().should.equal(appointment.user._id.toString());
-				  	booked.name.should.equal(appointment.user.name);
-				  	booked.email.should.equal(appointment.user.email.toLowerCase());
-				  	booked.phone.should.equal(appointment.user.phone);
+				  	booked.contact.name.should.equal(appointment.user.name);
+				  	booked.contact.email.should.equal(appointment.user.email.toLowerCase());
+				  	booked.contact.phone.should.equal(appointment.user.phone);
 				  });
 
 				  it('should have 2 appointments', (done) => {
-				  	Appointment.count({ email: appointment.user.email.toLowerCase() }).execAsync()
+				  	Appointment.count({ 'contact.email': appointment.user.email.toLowerCase() }).execAsync()
 				  		.then((total) => {
 				  			total.should.equal(2);
 				  		})
@@ -224,7 +260,8 @@ describe.only('Appointment Model :', function() {
 				});
 
 				it('should has appointment', () => {
-			  	// console.log(JSON.stringify(appointment, null, 2));
+			  	// console.log('returning user New Address', JSON.stringify(appointment, null, 2));
+			  		appointment.should.be.an.instanceOf(Object);
 			  });
 
 			  describe('Booked', () => {
@@ -243,20 +280,17 @@ describe.only('Appointment Model :', function() {
 			  		booked.should.be.an.instanceOf(Object);
 				  });
 
-				  it('should have appointment code', () => {
+				  it('should be booked', () => {
+			  		_.has(booked, '_id').should.be.true;
 				  	booked.code.should.be.an.instanceOf(String);
-				  });
-
-				  it('should appointment booked', () => {
 				  	booked.user.toString().should.equal(appointment.user._id.toString());
-				  	booked.name.should.equal(appointment.user.name);
-				  	booked.email.should.equal(appointment.user.email.toLowerCase());
-				  	booked.phone.should.equal(appointment.user.phone);
-				  	booked.address.should.equal(appointment._address);
+				  	booked.contact.name.should.equal(appointment.user.name);
+				  	booked.contact.email.should.equal(appointment.user.email.toLowerCase());
+				  	booked.contact.phone.should.equal(appointment.user.phone);
 				  });
 
 				  it('should user have new address', (done) => {
-				  	User.findById(booked.user).lean().select('address.street address.city address.zipcode').execAsync()
+				  	User.findById(booked.user).lean().select('address.address1 address.address2 address.city address.zipcode address.additional').execAsync()
 				  		.then((user) => {
 				  			user.address.should.have.lengthOf(2);
 				  			_.last(user.address).should.eql(appointment._address);
@@ -272,8 +306,9 @@ describe.only('Appointment Model :', function() {
 				  		.finally(done);
 				  });
 			  });
-			})
+			});
 		});
+
 	});
 
 	describe('Pickup time', () => {
@@ -289,8 +324,8 @@ describe.only('Appointment Model :', function() {
 		it('should get disable pickuptime', (done) => {
 			Appointment.getDisabledPickup({ user: user._id })
 				.then((dates) => {
-					console.log(dates);
 					dates.should.be.an.instanceOf(Array);
+					dates.length.should.be.above(0);
 				})
 				.finally(done);
 		});

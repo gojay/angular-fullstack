@@ -16,12 +16,6 @@ var UserSchema = new Schema({
     enum: ['admin', 'customer'],
     default: 'customer',
   },
-  address: [{
-    city: String,
-    street: String,
-    zipcode: String,
-    additional: String
-  }],
   phone: String,
   password: String,
   provider: String,
@@ -32,8 +26,9 @@ var UserSchema = new Schema({
   github: {},
   // customer
   address: [{
+    address1: String,
+    address2: String,
     city: String,
-    street: String,
     zipcode: String,
     additional: String
   }],

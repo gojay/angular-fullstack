@@ -10,23 +10,14 @@ var moment = require('moment');
 var User = require('../user/user.model');
 
 var AppointmentSchema = new Schema({
-    user: {
-        type: Schema.Types.ObjectId,
-        ref: 'User'/*,
-        required: true*/
-    },
-    name: String,
-    email: { type: String, lowercase: true },
-    phone: String,
-    address: Schema.Types.Mixed,
-    person: {
-        type: Schema.Types.ObjectId,
-        ref: 'Person'
-    },
     code: {
         type: String,
         unique: true,
         required: true
+    },
+    person: {
+        type: Schema.Types.ObjectId,
+        ref: 'Person'
     },
     service: {
         id: {
@@ -42,7 +33,28 @@ var AppointmentSchema = new Schema({
         step : [],
         estimate_price: Number
     },
-    pickuptime: Date,
+    user: {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    },
+    contact: {
+        name: String,
+        email: { 
+            type: String, 
+            lowercase: true 
+        },
+        phone: String
+    },
+    pickup: {
+        time: Date,
+        location: {
+            address1: String,
+            address2: String,
+            city: String,
+            zipcode: String,
+            additional: String
+        }
+    },
     price: Number,
     additional_info: String,
     status: {
@@ -91,7 +103,7 @@ AppointmentSchema.statics = {
         return this.aggregate([
             // { $match: params },
             { $match: { status: { $lte: 1 } } },
-            { $group: { _id: '$pickuptime' } },
+            { $group: { _id: '$pickup.time' } },
             { $sort: { _id: 1 } },
             { $project: { _id: 0, date: '$_id' } }
         ]).execAsync().then((appointments) => {
@@ -122,9 +134,13 @@ AppointmentSchema.statics = {
     booking(body) {
         if(!body) throw new Error('Body undefined!');
 
-        var appointment = _.omit(body, ['user', 'address', '_address']);
-        var userAsync;
+        if(!body.user) throw new Error('user is required');
+        if(!body.pickup || !body.pickup.hasOwnProperty('time')) throw new Error('pickup time is required');
+        if(!body.service) throw new Error('service is required');
 
+        var appointment = _.omit(body, ['user', 'address', '_address']);
+
+        var userAsync;
         // find or update user
         if (body.user._id) {
             // new address
@@ -147,11 +163,12 @@ AppointmentSchema.statics = {
                 userAsync = User.findById(body.user._id).select('name email phone address').execAsync()
                     .then((user) => {
                         var address = user.address[0];
-                        // set appointment address
-                        appointment.address = {
-                            city: address.city,
-                            street: address.street,
-                            zipcode: address.zipcode,
+                        // set appointment pickup location
+                        appointment.pickup.location = {
+                            address1  : address.address1,
+                            address2  : address.address2,
+                            city      : address.city,
+                            zipcode   : address.zipcode,
                             additional: address.additional
                         };
                         return user;
@@ -160,29 +177,16 @@ AppointmentSchema.statics = {
         }
         // return user
         else {
-            // var address = body.address || body._address;
-            // if (address) {
-            //     appointment.address = address;
-            //     body.user.address = _.isArray(address) ? address : [address];
-            // }
-            // userAsync = Promise.resolve(User.create(body.user));
-            
-            var address = body.address || body._address;
-            if (address) {
-                appointment.address = address;
-            }
+            appointment.pickup.location = body.address || body._address;
             userAsync = Promise.resolve(body.user);
         }
 
         return userAsync.then((user) => {
             if (!user) throw new Error('User not found!');
-            if(user._id) {
-                appointment.user = user._id;
-            }
-            appointment.name  = user.name;
-            appointment.email = user.email;
-            appointment.phone = user.phone;
+            if(user._id) appointment.user = user._id;
+            appointment.contact = _.pick(user, ['name', 'email', 'phone']);
             appointment.service.id = mongoose.Types.ObjectId(appointment.service.id);
+            if(appointment.service.reference) mongoose.Types.ObjectId(appointment.service.reference);
             return this._createWithGenerateCode(appointment);
         });
     },
@@ -194,7 +198,7 @@ AppointmentSchema.statics = {
         return this.findByIdAsync(body.id)
             .then((appointment) => {
                 if(!appointment) throw new Error('Appointment not found!!');
-                if(appointment.user || appointment.email != body.user.email) throw new Error('Appointment not match with this user!!');
+                if(appointment.user || appointment.contact.email != body.user.email) throw new Error('Appointment not match with this user!!');
                 appointment.user = body.user._id;
                 return appointment.saveAsync();
             });

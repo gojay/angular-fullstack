@@ -17,6 +17,7 @@ var utils = require('../../components/utils');
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
   return function(err) {
+    console.log('handleError', err);
     res.status(statusCode).send(err);
   };
 }
